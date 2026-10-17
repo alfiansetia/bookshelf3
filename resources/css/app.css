@@ -1,0 +1,375 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans:
+        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --font-display:
+        Instrument Serif, ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /*
+     | Token khusus rak buku. Nilainya diganti oleh [data-shelf-theme]
+     | sehingga satu komponen rak bisa tampil dalam beberapa gaya.
+     */
+    --color-shelf-plank: var(--shelf-plank);
+    --color-shelf-plank-edge: var(--shelf-plank-edge);
+    --color-shelf-surface: var(--shelf-surface);
+    --color-shelf-surface-2: var(--shelf-surface-2);
+    --color-shelf-ink: var(--shelf-ink);
+    --color-shelf-muted: var(--shelf-muted);
+    --color-shelf-accent: var(--shelf-accent);
+    --color-shelf-accent-soft: var(--shelf-accent-soft);
+    --color-shelf-glow: var(--shelf-glow);
+    --radius-shelf: var(--shelf-radius);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to anything that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+@layer utilities {
+    body,
+    html {
+        --font-sans:
+            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
+    }
+}
+
+/*
+  ┌─────────────────────────────────────────────────────────────────┐
+  │ Token global (mode terang)                                      │
+  │ Palet: kertas hangat + hijau perpustakaan + aksen kuning tanah. │
+  └─────────────────────────────────────────────────────────────────┘
+*/
+:root {
+    --background: hsl(40 30% 98%);
+    --foreground: hsl(28 20% 12%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(28 20% 12%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(28 20% 12%);
+    --primary: hsl(163 62% 25%);
+    --primary-foreground: hsl(150 45% 97%);
+    --secondary: hsl(36 30% 93%);
+    --secondary-foreground: hsl(28 25% 18%);
+    --muted: hsl(38 26% 94.5%);
+    --muted-foreground: hsl(28 12% 42%);
+    --accent: hsl(36 92% 52%);
+    --accent-foreground: hsl(28 60% 14%);
+    --destructive: hsl(0 72% 48%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(36 20% 88%);
+    --input: hsl(36 20% 86%);
+    --ring: hsl(163 55% 32%);
+    --chart-1: hsl(163 62% 32%);
+    --chart-2: hsl(36 92% 52%);
+    --chart-3: hsl(200 60% 42%);
+    --chart-4: hsl(280 50% 55%);
+    --chart-5: hsl(350 65% 55%);
+    --radius: 0.75rem;
+    --sidebar-background: hsl(38 30% 96%);
+    --sidebar-foreground: hsl(28 18% 25%);
+    --sidebar-primary: hsl(163 62% 25%);
+    --sidebar-primary-foreground: hsl(150 45% 97%);
+    --sidebar-accent: hsl(36 30% 90%);
+    --sidebar-accent-foreground: hsl(28 25% 20%);
+    --sidebar-border: hsl(36 20% 87%);
+    --sidebar-ring: hsl(163 55% 32%);
+    --sidebar: hsl(38 30% 96%);
+}
+
+.dark {
+    --background: hsl(200 12% 8%);
+    --foreground: hsl(40 20% 96%);
+    --card: hsl(200 12% 11%);
+    --card-foreground: hsl(40 20% 96%);
+    --popover: hsl(200 12% 11%);
+    --popover-foreground: hsl(40 20% 96%);
+    --primary: hsl(160 52% 60%);
+    --primary-foreground: hsl(165 62% 10%);
+    --secondary: hsl(200 9% 17%);
+    --secondary-foreground: hsl(40 20% 94%);
+    --muted: hsl(200 9% 16%);
+    --muted-foreground: hsl(40 10% 68%);
+    --accent: hsl(36 88% 56%);
+    --accent-foreground: hsl(28 60% 12%);
+    --destructive: hsl(0 65% 55%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(200 9% 20%);
+    --input: hsl(200 9% 22%);
+    --ring: hsl(160 52% 45%);
+    --chart-1: hsl(160 52% 55%);
+    --chart-2: hsl(36 88% 60%);
+    --chart-3: hsl(200 65% 60%);
+    --chart-4: hsl(280 55% 65%);
+    --chart-5: hsl(350 70% 62%);
+    --sidebar-background: hsl(200 12% 10%);
+    --sidebar-foreground: hsl(40 15% 92%);
+    --sidebar-primary: hsl(160 52% 60%);
+    --sidebar-primary-foreground: hsl(165 62% 10%);
+    --sidebar-accent: hsl(200 9% 18%);
+    --sidebar-accent-foreground: hsl(40 15% 92%);
+    --sidebar-border: hsl(200 9% 19%);
+    --sidebar-ring: hsl(160 52% 45%);
+    --sidebar: hsl(200 12% 10%);
+}
+
+/*
+  ┌─────────────────────────────────────────────────────────┐
+  │ Token gaya rak buku (4 tema)                            │
+  │ Dipakai lewat atribut data-shelf-theme pada wrapper rak. │
+  └─────────────────────────────────────────────────────────┘
+*/
+
+/* 1. Rak Kayu Klasik */
+[data-shelf-theme='wood'] {
+    --shelf-plank: hsl(28 44% 58%);
+    --shelf-plank-edge: hsl(24 42% 38%);
+    --shelf-surface: hsl(34 40% 95%);
+    --shelf-surface-2: hsl(32 34% 89%);
+    --shelf-ink: hsl(24 30% 16%);
+    --shelf-muted: hsl(24 15% 42%);
+    --shelf-accent: hsl(24 78% 44%);
+    --shelf-accent-soft: hsl(30 70% 90%);
+    --shelf-glow: transparent;
+    --shelf-radius: 0.5rem;
+}
+
+.dark [data-shelf-theme='wood'] {
+    --shelf-plank: hsl(26 32% 34%);
+    --shelf-plank-edge: hsl(24 30% 20%);
+    --shelf-surface: hsl(24 14% 13%);
+    --shelf-surface-2: hsl(24 12% 18%);
+    --shelf-ink: hsl(34 30% 94%);
+    --shelf-muted: hsl(30 12% 68%);
+    --shelf-accent: hsl(30 70% 62%);
+    --shelf-accent-soft: hsl(24 20% 20%);
+}
+
+/* 2. Rak Minimalis */
+[data-shelf-theme='minimal'] {
+    --shelf-plank: hsl(220 10% 88%);
+    --shelf-plank-edge: hsl(220 10% 78%);
+    --shelf-surface: hsl(0 0% 100%);
+    --shelf-surface-2: hsl(220 12% 96%);
+    --shelf-ink: hsl(222 20% 14%);
+    --shelf-muted: hsl(220 10% 46%);
+    --shelf-accent: hsl(222 24% 18%);
+    --shelf-accent-soft: hsl(220 14% 94%);
+    --shelf-glow: transparent;
+    --shelf-radius: 0.375rem;
+}
+
+.dark [data-shelf-theme='minimal'] {
+    --shelf-plank: hsl(220 10% 26%);
+    --shelf-plank-edge: hsl(220 10% 18%);
+    --shelf-surface: hsl(220 14% 10%);
+    --shelf-surface-2: hsl(220 12% 15%);
+    --shelf-ink: hsl(220 14% 95%);
+    --shelf-muted: hsl(220 10% 65%);
+    --shelf-accent: hsl(220 14% 92%);
+    --shelf-accent-soft: hsl(220 12% 18%);
+}
+
+/* 3. Rak Neon */
+[data-shelf-theme='neon'] {
+    --shelf-plank: hsl(230 40% 20%);
+    --shelf-plank-edge: hsl(230 50% 32%);
+    --shelf-surface: hsl(232 45% 7%);
+    --shelf-surface-2: hsl(232 40% 12%);
+    --shelf-ink: hsl(190 40% 96%);
+    --shelf-muted: hsl(220 20% 68%);
+    --shelf-accent: hsl(186 92% 56%);
+    --shelf-accent-soft: hsl(232 40% 16%);
+    --shelf-glow: hsl(186 92% 56%);
+    --shelf-radius: 0.5rem;
+}
+
+.dark [data-shelf-theme='neon'] {
+    --shelf-plank: hsl(230 42% 18%);
+    --shelf-plank-edge: hsl(232 60% 34%);
+    --shelf-surface: hsl(232 48% 6%);
+    --shelf-surface-2: hsl(232 42% 11%);
+    --shelf-ink: hsl(190 40% 96%);
+    --shelf-muted: hsl(220 20% 70%);
+    --shelf-accent: hsl(186 94% 58%);
+    --shelf-accent-soft: hsl(232 42% 15%);
+    --shelf-glow: hsl(304 90% 62%);
+}
+
+/* 4. Rak Kafe Hangat */
+[data-shelf-theme='cozy'] {
+    --shelf-plank: hsl(20 55% 78%);
+    --shelf-plank-edge: hsl(18 45% 62%);
+    --shelf-surface: hsl(24 70% 97%);
+    --shelf-surface-2: hsl(20 50% 93%);
+    --shelf-ink: hsl(15 35% 18%);
+    --shelf-muted: hsl(15 20% 45%);
+    --shelf-accent: hsl(350 62% 62%);
+    --shelf-accent-soft: hsl(350 70% 94%);
+    --shelf-glow: transparent;
+    --shelf-radius: 1.25rem;
+}
+
+.dark [data-shelf-theme='cozy'] {
+    --shelf-plank: hsl(18 30% 32%);
+    --shelf-plank-edge: hsl(16 28% 22%);
+    --shelf-surface: hsl(18 16% 12%);
+    --shelf-surface-2: hsl(18 14% 17%);
+    --shelf-ink: hsl(24 40% 95%);
+    --shelf-muted: hsl(20 14% 70%);
+    --shelf-accent: hsl(350 70% 72%);
+    --shelf-accent-soft: hsl(350 25% 20%);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    ::selection {
+        background-color: color-mix(in oklab, var(--primary) 25%, transparent);
+    }
+}
+
+@layer components {
+    /*
+     | Papan rak: garis ganda di bagian bawah supaya terlihat seperti
+     | papan kayu yang punya ketebalan.
+     */
+    .shelf-plank {
+        background-image: linear-gradient(
+            to bottom,
+            var(--shelf-plank) 0%,
+            color-mix(in oklab, var(--shelf-plank) 82%, black) 100%
+        );
+        box-shadow:
+            inset 0 1px 0 color-mix(in oklab, white 35%, transparent),
+            0 10px 18px -12px color-mix(in oklab, black 55%, transparent);
+    }
+
+    /* Efek barel untuk tema kayu. */
+    [data-shelf-theme='wood'] .shelf-plank {
+        background-image:
+            repeating-linear-gradient(
+                90deg,
+                color-mix(in oklab, var(--shelf-plank) 92%, black) 0 2px,
+                transparent 2px 9px
+            ),
+            linear-gradient(
+                to bottom,
+                var(--shelf-plank) 0%,
+                color-mix(in oklab, var(--shelf-plank) 80%, black) 100%
+            );
+    }
+
+    /* Garis menyala untuk tema neon. */
+    [data-shelf-theme='neon'] .shelf-plank {
+        background-image: none;
+        background-color: var(--shelf-plank);
+        box-shadow:
+            0 0 12px var(--shelf-glow),
+            inset 0 0 0 1px
+                color-mix(in oklab, var(--shelf-glow) 45%, transparent);
+    }
+
+    .shelf-surface {
+        background-color: var(--shelf-surface);
+        color: var(--shelf-ink);
+    }
+
+    .book-lift {
+        transition:
+            transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 220ms ease;
+    }
+
+    .book-lift:hover {
+        transform: translateY(-6px) rotate(var(--book-tilt, 0deg));
+        box-shadow: 0 18px 28px -18px
+            color-mix(in oklab, black 70%, transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .book-lift,
+        .book-lift:hover {
+            transform: none;
+            transition: none;
+        }
+    }
+}

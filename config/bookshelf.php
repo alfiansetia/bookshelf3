@@ -1,0 +1,115 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bahasa Buku
+    |--------------------------------------------------------------------------
+    |
+    | Sumber tunggal (single source of truth) daftar bahasa buku yang bisa
+    | dipilih pemilik rak dan dipakai sebagai filter di halaman publik.
+    | Key = kode bahasa, value = label Bahasa Indonesia.
+    |
+    */
+
+    'languages' => [
+        'id' => 'Indonesia',
+        'en' => 'Inggris',
+        'ms' => 'Melayu',
+        'jv' => 'Jawa',
+        'su' => 'Sunda',
+        'ar' => 'Arab',
+        'zh' => 'Mandarin',
+        'ja' => 'Jepang',
+        'ko' => 'Korea',
+        'hi' => 'Hindi',
+        'th' => 'Thailand',
+        'vi' => 'Vietnam',
+        'nl' => 'Belanda',
+        'de' => 'Jerman',
+        'fr' => 'Prancis',
+        'es' => 'Spanyol',
+        'it' => 'Italia',
+        'pt' => 'Portugis',
+        'ru' => 'Rusia',
+        'tr' => 'Turki',
+        'fa' => 'Persia',
+        'sv' => 'Swedia',
+        'other' => 'Lainnya',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Username Publik
+    |--------------------------------------------------------------------------
+    |
+    | Username dipakai langsung sebagai alamat rak: example.com/username.
+    | Daftar `reserved` mencegah username menabrak route aplikasi.
+    |
+    */
+
+    'username' => [
+        'min' => 3,
+        'max' => 30,
+        'regex' => '/^[a-z0-9](?:[a-z0-9._-]{1,28}[a-z0-9])$/',
+        'reserved' => [
+            'about', 'admin', 'administrator', 'api', 'app', 'appearance', 'assets',
+            'auth', 'blog', 'books', 'build', 'buku', 'cdn', 'css', 'dashboard',
+            'docs', 'email', 'explore', 'favicon', 'feedback', 'google', 'health',
+            'help', 'home', 'horizon', 'images', 'img', 'jelajah', 'js', 'katalog',
+            'legal', 'livewire', 'login', 'logout', 'mail', 'me', 'new', 'nova',
+            'oauth', 'onboarding', 'premium', 'privacy', 'profile', 'profiles',
+            'pulse', 'rak', 'register', 'robots', 'sanctum', 'search', 'security',
+            'settings', 'shelf', 'shelves', 'sitemap', 'static', 'status', 'storage',
+            'support', 'telescope', 'terms', 'up', 'user', 'users', 'welcome',
+            'well-known', 'webhook', 'webhooks', 'www',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unggahan Sampul & Avatar
+    |--------------------------------------------------------------------------
+    */
+
+    'cover' => [
+        'disk' => 'public',
+        'directory' => 'covers',
+        'max_kilobytes' => 3072,
+        'mimes' => ['jpg', 'jpeg', 'png', 'webp'],
+    ],
+
+    'avatar' => [
+        'disk' => 'public',
+        'directory' => 'avatars',
+        'max_kilobytes' => 2048,
+        'mimes' => ['jpg', 'jpeg', 'png', 'webp'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Batas Konten
+    |--------------------------------------------------------------------------
+    */
+
+    'limits' => [
+        'books_per_user' => 500,
+        'bio' => 600,
+        'tagline' => 120,
+        'synopsis' => 6000,
+        'review' => 6000,
+    ],
+
+    'rating' => [
+        'min' => 1,
+        'max' => 5,
+    ],
+
+    'pagination' => [
+        'books' => 12,
+        'shelf' => 24,
+        'explore' => 12,
+    ],
+
+];
