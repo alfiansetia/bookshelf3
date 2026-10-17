@@ -3,72 +3,135 @@
 namespace App\Actions;
 
 use App\Models\User;
+use App\UploadedImageType;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 
 /**
  * Mengunduh foto profil Google agar tidak bergantung pada URL pihak ketiga.
+ *
+ * Gambar yang diunduh dilewatkan pipeline StoreUploadedImage supaya hasilnya
+ * sama dengan avatar unggahan: diperkecil, dikompres jadi WebP, dan disimpan
+ * di disk gambar yang sedang dikonfigurasi.
  */
 class ImportRemoteAvatar
 {
     /**
-     * Jenis gambar yang boleh diimpor beserta ekstensinya.
+     * Jenis gambar yang boleh diimpor.
      *
-     * @var array<string, string>
+     * @var array<int, string>
      */
     private const ALLOWED_TYPES = [
-        'image/jpeg' => 'jpg',
-        'image/jpg' => 'jpg',
-        'image/png' => 'png',
-        'image/webp' => 'webp',
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp',
     ];
 
     /**
-     * Maksimal ukuran avatar yang diimpor (dalam byte).
+     * Maksimal ukuran berkas avatar yang diimpor (dalam byte).
      */
     private const MAX_BYTES = 2_097_152;
 
+    public function __construct(private StoreUploadedImage $imageStore) {}
+
     /**
-     * Unduh avatar dari URL dan simpan sebagai avatar lokal pengguna.
+     * Impor foto Google bila pengguna belum punya avatar.
      */
     public function handle(User $user, ?string $url): bool
     {
-        if (blank($url)) {
+        if (blank($url) || filled($user->avatar_path)) {
+            return false;
+        }
+
+        $body = $this->download($url);
+
+        if ($body === null) {
             return false;
         }
 
         try {
-            $response = Http::timeout(10)->get($url);
+            $path = $this->imageStore->storeContents($body, UploadedImageType::Avatar);
         } catch (Throwable) {
             return false;
         }
 
+        $user->forceFill(['avatar_path' => $path])->save();
+
+        return true;
+    }
+
+    /**
+     * Unduh avatar berukuran besar, lalu jatuh ke URL asli bila gagal.
+     */
+    private function download(string $url): ?string
+    {
+        foreach ($this->downloadUrls($url) as $candidate) {
+            $body = $this->fetch($candidate);
+
+            if ($body !== null) {
+                return $body;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * URL yang dicoba berurutan: ukuran besar dulu, lalu URL asli dari Google.
+     *
+     * @return array<int, string>
+     */
+    private function downloadUrls(string $url): array
+    {
+        return array_values(array_unique([$this->withLargeSize($url), $url]));
+    }
+
+    /**
+     * Ganti penanda ukuran foto Google (misalnya `=s96-c`) jadi sesuai batas avatar.
+     *
+     * Foto default dari Google hanya 96 piksel sehingga pecah saat ditampilkan,
+     * sedangkan parameter ukurannya bisa diminta ulang.
+     */
+    private function withLargeSize(string $url): string
+    {
+        if (! str_contains($url, 'googleusercontent.com')) {
+            return $url;
+        }
+
+        $size = config()->integer('bookshelf.avatar.max_width');
+
+        return (string) preg_replace('/=s\d+(-c)?$/', '=s'.$size.'-c', $url);
+    }
+
+    /**
+     * Ambil isi gambar dari satu URL bila jenis dan ukurannya didukung.
+     */
+    private function fetch(string $url): ?string
+    {
+        try {
+            $response = Http::timeout(10)->get($url);
+        } catch (Throwable) {
+            return null;
+        }
+
         if (! $response->successful()) {
-            return false;
+            return null;
         }
 
         $contentType = Str::of((string) $response->header('Content-Type'))->before(';')->trim()->lower()->value();
-        $extension = self::ALLOWED_TYPES[$contentType] ?? null;
 
-        if ($extension === null) {
-            return false;
+        if (! in_array($contentType, self::ALLOWED_TYPES, true)) {
+            return null;
         }
 
         $body = $response->body();
 
         if ($body === '' || strlen($body) > self::MAX_BYTES) {
-            return false;
+            return null;
         }
 
-        $disk = config('bookshelf.avatar.disk');
-        $path = trim((string) config('bookshelf.avatar.directory'), '/').'/google/'.Str::uuid()->toString().'.'.$extension;
-
-        Storage::disk($disk)->put($path, $body);
-
-        $user->forceFill(['avatar_path' => $path])->save();
-
-        return true;
+        return $body;
     }
 }

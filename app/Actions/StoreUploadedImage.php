@@ -4,7 +4,8 @@ namespace App\Actions;
 
 use App\UploadedImageType;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Image;
+use Illuminate\Image\Image;
+use Illuminate\Support\Facades\Image as ImageFacade;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
@@ -22,9 +23,25 @@ class StoreUploadedImage
     private const PROCESSING_MEMORY_LIMIT = '512M';
 
     /**
-     * Simpan gambar dan kembalikan path relatifnya di disk.
+     * Simpan gambar unggahan dan kembalikan path relatifnya di disk.
      */
     public function store(UploadedFile $file, UploadedImageType $type): string
+    {
+        return $this->write(ImageFacade::fromUpload($file), $type);
+    }
+
+    /**
+     * Simpan gambar dari isi berkas mentah, misalnya hasil unduhan foto Google.
+     */
+    public function storeContents(string $contents, UploadedImageType $type): string
+    {
+        return $this->write(ImageFacade::fromBytes($contents), $type);
+    }
+
+    /**
+     * Jalankan pipeline yang sama untuk gambar unggahan maupun hasil unduhan.
+     */
+    private function write(Image $image, UploadedImageType $type): string
     {
         $settings = $type->settings();
         $folder = trim($settings['directory'], '/').'/'.now()->format('Y/m');
@@ -36,7 +53,7 @@ class StoreUploadedImage
             // Sengaja tanpa `storePublicly()`: R2 mengabaikan ACL, dan bucket S3
             // modern menggagalkan permintaan yang membawa `x-amz-acl`. Akses
             // publik diatur di sisi bucket (domain r2.dev atau domain sendiri).
-            $path = Image::fromUpload($file)
+            $path = $image
                 ->orient()
                 ->scale(width: $settings['max_width'], height: $settings['max_height'])
                 ->optimize(quality: $settings['quality'])

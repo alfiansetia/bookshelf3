@@ -123,6 +123,11 @@ php artisan config:clear
 Pengguna baru dari Google diarahkan ke `/onboarding/username` untuk memilih
 username rak, karena username itulah yang menjadi alamat publiknya.
 
+Foto profil Google otomatis diunduh dan disimpan saat pengguna belum punya
+avatar (lewat `app/Actions/ImportRemoteAvatar.php`), lalu diproses seperti
+avatar unggahan: diperkecil, dijadikan WebP, dan ditaruh di disk gambar yang
+sedang dipakai. Foto yang diunggah sendiri tidak pernah ditimpa foto Google.
+
 > Saat mengubah `.env` di produksi, jalankan `php artisan config:clear` (atau
 > `config:cache`) agar nilai baru terpakai.
 
