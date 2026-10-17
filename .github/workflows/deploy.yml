@@ -1,0 +1,87 @@
+name: Deploy to VPS
+
+# Auto-deploy: jalan otomatis setiap push ke main. Manual via tab Actions tetap bisa.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          # Gagalkan step begitu satu perintah error (SSH non-interaktif).
+          script_stop: true
+          script: |
+            set -e
+            cd ${{ secrets.PROJECT_PATH }}
+
+            # .env wajib ada karena laravel membaca lewat mount, bukan env_file.
+            if [ ! -f .env ]; then
+              echo "ERROR: .env belum ada di server (cp .env.example .env lalu isi)." >&2
+              exit 1
+            fi
+
+            # Baca satu nilai dari .env tanpa meng-source seluruh file.
+            # (source .env berbahaya: nilai bcrypt/secret mengandung $ yang
+            # diekspansi shell dan merusak nilainya.)
+            env_get() {
+              grep -E "^$1=" .env | tail -n 1 | cut -d= -f2- \
+                | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//"
+            }
+
+            # Network dipakai bersama stack mysql + cloudflared. Idempoten:
+            # kalau sudah ada, perintah ini tidak melakukan apa-apa.
+            docker network create app-network 2>/dev/null || true
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            # --build wajib: source + vite build ikut di-bake ke image (COPY . .),
+            # tanpa ini container jalan dengan kode lama.
+            # --wait: tunggu healthcheck lolos, jadi backup/migrate tidak balapan start.
+            # bookshelf-web ikut ter-recreate otomatis karena satu image.
+            # --remove-orphans: bersihkan container lama (mis. worker/scheduler) yang sudah dihapus.
+            docker compose up -d --build --remove-orphans --wait
+
+            # --- Backup DB sebelum migrate (jangan migrate tanpa jaring pengaman) ---
+            STAMP=$(date +%Y%m%d%H%M%S)
+            if [ "$(env_get DB_CONNECTION)" = "mysql" ]; then
+              # mysqldump dijalankan di dalam container app (default-mysql-client
+              # sudah terpasang, lihat Dockerfile). DB_* diturunkan dari .env
+              # supaya password tetap satu sumber dan tidak ditulis di workflow.
+              # --no-tablespaces: tidak butuh privilege PROCESS (MySQL 8 / managed).
+              DUMP_FILE="/var/www/html/database/backups/db-$STAMP.sql"
+              docker compose exec -T \
+                -e DB_HOST="$(env_get DB_HOST)" \
+                -e DB_PORT="$(env_get DB_PORT)" \
+                -e DB_DATABASE="$(env_get DB_DATABASE)" \
+                -e DB_USERNAME="$(env_get DB_USERNAME)" \
+                -e DB_PASSWORD="$(env_get DB_PASSWORD)" \
+                bookshelf-app sh -c '
+                  mkdir -p /var/www/html/database/backups
+                  mysqldump --single-transaction --quick --skip-lock-tables --no-tablespaces \
+                    -h"$DB_HOST" -P"${DB_PORT:-3306}" \
+                    -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" \
+                    > "$1"
+                ' sh "$DUMP_FILE"
+            elif [ -f database/database.sqlite ]; then
+              cp database/database.sqlite "database/database.sqlite.bak-$STAMP"
+            fi
+
+            # -T: tanpa TTY (SSH non-interaktif). -u www-data: agar file
+            # cache/migrate milik www-data, bukan root.
+            docker compose exec -T -u www-data bookshelf-app php artisan migrate --force
+            docker compose exec -T -u www-data bookshelf-app php artisan optimize
+            docker compose ps

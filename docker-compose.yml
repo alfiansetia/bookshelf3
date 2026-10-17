@@ -1,0 +1,94 @@
+services:
+  # PHP-FPM: eksekusi Laravel, tidak diakses langsung dari luar
+  bookshelf-app:
+    build:
+      context: .
+      target: app
+    container_name: bookshelf-app
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    # NOTE: .env sengaja TIDAK dimuat via env_file. Compose menginterpolasi
+    # karakter $ (mis. nilai bcrypt/secret yang mengandung $ menjadi rusak
+    # + warning 'The "xx" variable is not set'). .env sudah di-mount ke
+    # /var/www/html/.env di bawah, dan itu yang dibaca Laravel.
+    expose:
+      - "9000"
+    volumes:
+      # Persistensi storage + .env agar bisa diubah tanpa rebuild.
+      # ./database hanya relevan untuk sqlite lokal (dan menampung hasil
+      # mysqldump dari workflow deploy); di produksi MySQL tidak dipakai.
+      - ./storage:/var/www/html/storage
+      - ./database:/var/www/html/database
+      - ./.env:/var/www/html/.env:ro
+    networks:
+      app-network:
+        aliases:
+          - bookshelf-app
+    healthcheck:
+      test: ["CMD-SHELL", "pidof php-fpm || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Nginx: satu-satunya yang menerima HTTP, ditembak Cloudflare Tunnel.
+  # Ingress tunnel: http://bookshelf:80 (alias web di bawah) atau http://bookshelf-web:80
+  bookshelf-web:
+    build:
+      context: .
+      target: web
+    container_name: bookshelf-web
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    # Hanya expose ke dalam network, tanpa publish port ke host.
+    # Cloudflare Tunnel (di network yang sama) forward ke http://bookshelf:80
+    expose:
+      - "80"
+    volumes:
+      # Mount yang sama dengan php-fpm (read-only): dibaca lewat
+      # symlink public/storage -> /var/www/html/storage/app/public
+      - ./storage:/var/www/html/storage:ro
+    networks:
+      app-network:
+        aliases:
+          # Alias pendek `bookshelf` supaya ingress Cloudflare Tunnel bisa
+          # ditulis ringkas: service: http://bookshelf:80
+          - bookshelf
+          - bookshelf-web
+    depends_on:
+      bookshelf-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # NOTE: app ini tidak punya queue worker maupun scheduler, jadi tidak ada
+  # service bookshelf-worker / bookshelf-scheduler. Semua yang dibutuhkan
+  # (php-fpm + nginx) sudah cukup.
+  # Kalau nanti butuh antrean, tambahkan `bookshelf-worker` dengan target `app`
+  # dan command: php artisan queue:work.
+
+networks:
+  # Join ke network yang sudah dipakai service MySQL shared + cloudflared.
+  # Network ini dibuat oleh stack MySQL di server, compose ini TIDAK membuatnya:
+  #   docker network create app-network   (idempoten, aman dipanggil ulang)
+  # Service MySQL di server bernama `mysql-shared`, jadi di .env produksi:
+  #   DB_CONNECTION=mysql
+  #   DB_HOST=mysql-shared
+  #   DB_DATABASE=bookshelf
+  # Dev lokal tanpa stack MySQL: ganti ke `external: false` sementara
+  # atau buat network di atas sebelum `docker compose up`.
+  app-network:
+    name: app-network
+    external: true

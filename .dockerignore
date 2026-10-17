@@ -1,0 +1,16 @@
+.git
+.gitattributes
+.github
+node_modules
+vendor
+public/build
+public/hot
+storage
+database/*.sqlite
+database/*.sqlite-*
+.env
+.env.*
+!.env.example
+tests
+.phpunit.result.cache
+docker-compose.override.yml
