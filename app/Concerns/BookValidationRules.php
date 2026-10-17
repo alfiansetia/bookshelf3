@@ -41,6 +41,9 @@ trait BookValidationRules
                 'image',
                 'mimes:'.implode(',', $cover['mimes']),
                 'max:'.$cover['max_kilobytes'],
+                Rule::dimensions()
+                    ->maxWidth($cover['max_source_width'])
+                    ->maxHeight($cover['max_source_height']),
             ],
         ];
     }
@@ -52,6 +55,7 @@ trait BookValidationRules
      */
     protected function bookMessages(): array
     {
+        $cover = config('bookshelf.cover');
         $languages = implode(', ', array_values(config('bookshelf.languages')));
 
         return [
@@ -67,6 +71,11 @@ trait BookValidationRules
             'cover.image' => 'Sampul harus berupa gambar.',
             'cover.mimes' => 'Format sampul harus JPG, PNG, atau WEBP.',
             'cover.max' => 'Ukuran sampul maksimal :max kilobita.',
+            'cover.dimensions' => sprintf(
+                'Sampul terlalu besar. Maksimal %d x %d piksel.',
+                $cover['max_source_width'],
+                $cover['max_source_height'],
+            ),
             'total_pages.min' => 'Jumlah halaman minimal 1.',
             'started_at.before_or_equal' => 'Tanggal mulai tidak boleh melewati hari ini.',
             'finished_at.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',

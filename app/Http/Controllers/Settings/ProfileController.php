@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Actions\StoreUploadedImage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\UploadedImageType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,13 +53,9 @@ class ProfileController extends Controller
         $attributes = $request->safe()->except('avatar');
 
         if ($request->hasFile('avatar')) {
-            $this->imageStore->delete($user->avatar_path, (string) config('bookshelf.avatar.disk'));
+            $this->imageStore->delete($user->avatar_path, UploadedImageType::Avatar);
 
-            $attributes['avatar_path'] = $this->imageStore->store(
-                $request->file('avatar'),
-                (string) config('bookshelf.avatar.directory'),
-                (string) config('bookshelf.avatar.disk'),
-            );
+            $attributes['avatar_path'] = $this->imageStore->store($request->file('avatar'), UploadedImageType::Avatar);
         }
 
         $user->fill($attributes);

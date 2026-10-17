@@ -78,6 +78,11 @@ return [
         'directory' => 'covers',
         'max_kilobytes' => 3072,
         'mimes' => ['jpg', 'jpeg', 'png', 'webp'],
+        'max_source_width' => 6000,
+        'max_source_height' => 9000,
+        'max_width' => 1000,
+        'max_height' => 1500,
+        'quality' => 82,
     ],
 
     'avatar' => [
@@ -85,6 +90,11 @@ return [
         'directory' => 'avatars',
         'max_kilobytes' => 2048,
         'mimes' => ['jpg', 'jpeg', 'png', 'webp'],
+        'max_source_width' => 6000,
+        'max_source_height' => 6000,
+        'max_width' => 512,
+        'max_height' => 512,
+        'quality' => 82,
     ],
 
     /*

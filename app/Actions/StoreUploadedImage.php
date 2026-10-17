@@ -2,40 +2,66 @@
 
 namespace App\Actions;
 
+use App\UploadedImageType;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
- * Menyimpan berkas gambar unggahan ke disk publik dengan nama acak.
+ * Menyimpan gambar unggahan sebagai WebP yang sudah diperkecil.
+ *
+ * Gambar diubah orientasinya mengikuti EXIF, diperkecil agar tidak melebihi
+ * batas pada config/bookshelf.php, lalu dikompres sebelum disimpan.
  */
 class StoreUploadedImage
 {
     /**
+     * Batas memori selama gambar diproses, karena GD memuat gambar penuh ke memori.
+     */
+    private const PROCESSING_MEMORY_LIMIT = '512M';
+
+    /**
      * Simpan gambar dan kembalikan path relatifnya di disk.
      */
-    public function store(UploadedFile $file, string $directory, string $disk = 'public'): string
+    public function store(UploadedFile $file, UploadedImageType $type): string
     {
-        $extension = Str::lower($file->extension() ?: $file->getClientOriginalExtension() ?: 'jpg');
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $folder = trim($directory, '/').'/'.now()->format('Y/m');
+        $settings = $type->settings();
+        $folder = trim($settings['directory'], '/').'/'.now()->format('Y/m');
+        $previousLimit = ini_get('memory_limit');
 
-        return (string) $file->storeAs($folder, $filename, $disk);
+        ini_set('memory_limit', self::PROCESSING_MEMORY_LIMIT);
+
+        try {
+            $path = Image::fromUpload($file)
+                ->orient()
+                ->scale(width: $settings['max_width'], height: $settings['max_height'])
+                ->optimize(quality: $settings['quality'])
+                ->storePublicly(path: $folder, disk: $settings['disk']);
+        } finally {
+            ini_set('memory_limit', $previousLimit);
+        }
+
+        if ($path === false) {
+            throw new RuntimeException('Gambar gagal disimpan ke penyimpanan.');
+        }
+
+        return $path;
     }
 
     /**
      * Hapus gambar lama bila berkasnya masih ada.
      */
-    public function delete(?string $path, string $disk = 'public'): void
+    public function delete(?string $path, UploadedImageType $type): void
     {
         if (blank($path)) {
             return;
         }
 
-        $diskInstance = Storage::disk($disk);
+        $disk = Storage::disk($type->settings()['disk']);
 
-        if ($diskInstance->exists($path)) {
-            $diskInstance->delete($path);
+        if ($disk->exists($path)) {
+            $disk->delete($path);
         }
     }
 }

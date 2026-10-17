@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateBookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use App\Models\User;
+use App\UploadedImageType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -170,11 +171,7 @@ class BookController extends Controller
             return null;
         }
 
-        return $this->imageStore->store(
-            $request->file('cover'),
-            (string) config('bookshelf.cover.directory'),
-            (string) config('bookshelf.cover.disk'),
-        );
+        return $this->imageStore->store($request->file('cover'), UploadedImageType::Cover);
     }
 
     /**
@@ -182,6 +179,6 @@ class BookController extends Controller
      */
     private function deleteCover(?string $path): void
     {
-        $this->imageStore->delete($path, (string) config('bookshelf.cover.disk'));
+        $this->imageStore->delete($path, UploadedImageType::Cover);
     }
 }

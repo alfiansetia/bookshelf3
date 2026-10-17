@@ -31,6 +31,9 @@ trait ProfileValidationRules
                 'image',
                 'mimes:'.implode(',', $avatar['mimes']),
                 'max:'.$avatar['max_kilobytes'],
+                Rule::dimensions()
+                    ->maxWidth($avatar['max_source_width'])
+                    ->maxHeight($avatar['max_source_height']),
             ],
         ];
     }
@@ -104,6 +107,8 @@ trait ProfileValidationRules
      */
     protected function profileMessages(): array
     {
+        $avatar = config('bookshelf.avatar');
+
         return [
             'username.required' => 'Username wajib diisi karena dipakai sebagai alamat rak kamu.',
             'username.unique' => 'Username ini sudah dipakai orang lain.',
@@ -114,6 +119,11 @@ trait ProfileValidationRules
             'avatar.image' => 'Berkas foto harus berupa gambar.',
             'avatar.max' => 'Ukuran foto maksimal :max kilobita.',
             'avatar.mimes' => 'Format foto harus JPG, PNG, atau WEBP.',
+            'avatar.dimensions' => sprintf(
+                'Foto terlalu besar. Maksimal %d x %d piksel.',
+                $avatar['max_source_width'],
+                $avatar['max_source_height'],
+            ),
         ];
     }
 }
