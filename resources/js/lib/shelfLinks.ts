@@ -1,14 +1,12 @@
 import type { Book } from '@/types';
-import { edit as editBook } from '@/routes/books';
 
 /**
- * Tautan sebuah buku di rak: halaman edit kalau yang melihat pemilik rak,
- * atau halaman publik buku untuk pengunjung.
+ * Tautan sebuah buku di rak: selalu ke halaman detail publik.
+ * Pemilik mengedit lewat tombol "Ubah" di dashboard / halaman detail,
+ * bukan lewat klik badan buku di rak.
  */
-export function shelfBookHref(book: Book, owner: boolean): string | null {
-    if (owner && book.can.update) {
-        return editBook(book.id).url;
-    }
+export function shelfBookHref(book: Book, _owner?: boolean): string | null {
+    void _owner;
 
     return book.public_url;
 }

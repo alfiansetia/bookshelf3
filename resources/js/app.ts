@@ -14,7 +14,9 @@ void createInertiaApp({
         switch (true) {
             case name === 'Welcome' ||
                 name === 'Explore' ||
-                name.startsWith('public/'):
+                name.startsWith('public/') ||
+                name.startsWith('legal/') ||
+                name.startsWith('errors/'):
                 return PublicLayout;
             case name.startsWith('auth/') || name.startsWith('onboarding/'):
                 return AuthLayout;
@@ -43,3 +45,11 @@ initializeTheme();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
+
+// Daftarkan service worker PWA hanya pada build produksi. Kegagalan di sini
+// tidak boleh mengganggu jalannya aplikasi.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        void navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}

@@ -26,7 +26,10 @@ class PublicProfileController extends Controller
         $isOwner = $viewer !== null && $viewer->id === $user->id;
 
         if (! $user->is_public && ! $isOwner) {
-            abort(404);
+            return Inertia::render('public/Private', [
+                'username' => $user->username,
+                'context' => 'profile',
+            ]);
         }
 
         $filters = $this->shelfFiltersFrom($request);

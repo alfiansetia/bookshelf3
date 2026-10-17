@@ -79,7 +79,8 @@ const tilts = ['-1.4deg', '0.9deg', '-0.6deg', '1.2deg'];
 
                         <span class="mt-3 block px-1">
                             <span
-                                class="block font-display text-base leading-snug text-shelf-ink"
+                                class="block font-display text-base leading-snug break-words text-shelf-ink"
+                                :title="book.title"
                             >
                                 {{ book.title }}
                             </span>

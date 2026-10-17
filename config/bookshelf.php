@@ -55,14 +55,19 @@ return [
         'regex' => '/^[a-z0-9](?:[a-z0-9._-]{1,28}[a-z0-9])$/',
         'reserved' => [
             'about', 'admin', 'administrator', 'api', 'app', 'appearance', 'assets',
-            'auth', 'blog', 'books', 'build', 'buku', 'cdn', 'css', 'dashboard',
-            'docs', 'email', 'explore', 'favicon', 'feedback', 'google', 'health',
-            'help', 'home', 'horizon', 'images', 'img', 'jelajah', 'js', 'katalog',
-            'legal', 'livewire', 'login', 'logout', 'mail', 'me', 'new', 'nova',
-            'oauth', 'onboarding', 'premium', 'privacy', 'profile', 'profiles',
-            'pulse', 'rak', 'register', 'robots', 'sanctum', 'search', 'security',
-            'settings', 'shelf', 'shelves', 'sitemap', 'static', 'status', 'storage',
-            'support', 'telescope', 'terms', 'up', 'user', 'users', 'welcome',
+            'auth', 'blog', 'books', 'build', 'buku', 'cdn', 'cookie', 'css',
+            'dashboard', 'docs', 'email', 'explore', 'favicon', 'favicon.ico',
+            'feedback', 'google',
+            'health', 'help', 'home', 'horizon', 'icons', 'images', 'img', 'jelajah',
+            'js', 'katalog', 'kebijakan-cookie', 'legal', 'livewire', 'login',
+            'logout', 'mail', 'manifest', 'manifest.webmanifest', 'me', 'new',
+            'nova', 'oauth', 'offline',
+            'onboarding', 'premium', 'privacy', 'profile', 'profiles', 'pulse', 'rak',
+            'register', 'robots', 'robots.txt', 'sanctum', 'search', 'security',
+            'settings', 'shelf',
+            'shelves', 'sitemap', 'sitemap.xml', 'static', 'status', 'storage',
+            'support', 'sw', 'sw.js',
+            'telescope', 'terms', 'up', 'user', 'users', 'welcome', 'webmanifest',
             'well-known', 'webhook', 'webhooks', 'www',
         ],
     ],
@@ -120,6 +125,40 @@ return [
         'books' => 12,
         'shelf' => 24,
         'explore' => 12,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEO & Berbagi
+    |--------------------------------------------------------------------------
+    |
+    | Nilai bawaan untuk judul, deskripsi, dan gambar pratinjau saat halaman
+    | dibagikan. Dipakai middleware Inertia sebagai data bersama sehingga
+    | tag meta selalu memakai URL absolut.
+    |
+    */
+
+    'seo' => [
+        'title_suffix' => env('APP_NAME', 'Rak Buku'),
+        'description' => 'Rak buku pribadi yang bisa dibagikan. Simpan buku yang sedang dan sudah kamu baca, tulis catatan serta rating, lalu bagikan raknya lewat satu tautan.',
+        'image' => 'images/og-default.png',
+        'locale' => 'id_ID',
+        'twitter' => null,
+        'sitemap_book_limit' => 20000,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | PWA
+    |--------------------------------------------------------------------------
+    */
+
+    'pwa' => [
+        'name' => env('APP_NAME', 'Rak Buku'),
+        'short_name' => env('APP_SHORT_NAME', 'Rak Buku'),
+        'theme_color' => '#186751',
+        'theme_color_dark' => '#121517',
+        'background_color' => '#FBFAF8',
     ],
 
 ];

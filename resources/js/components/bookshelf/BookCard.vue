@@ -24,11 +24,7 @@ const props = withDefaults(
     },
 );
 
-const detailHref = computed(() =>
-    props.owner && props.book.can.update
-        ? edit.url(props.book.id)
-        : props.book.public_url,
-);
+const detailHref = computed(() => props.book.public_url);
 
 const finishedLabel = computed(() => {
     if (props.book.status !== 'finished' || !props.book.finished_at) {

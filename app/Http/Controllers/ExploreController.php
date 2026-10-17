@@ -63,6 +63,7 @@ class ExploreController extends Controller
                 ['value' => 'name', 'label' => 'Nama A-Z'],
             ],
             'themes' => ShelfTheme::options(),
+            'canonical' => route('explore'),
             'numbers' => [
                 'readers' => User::query()->publicShelf()->count(),
                 'books' => Book::query()->count(),

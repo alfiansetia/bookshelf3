@@ -23,7 +23,10 @@ class PublicBookController extends Controller
         $isOwner = $viewer !== null && $viewer->id === $user->id;
 
         if (! $user->is_public && ! $isOwner) {
-            abort(404);
+            return Inertia::render('public/Private', [
+                'username' => $user->username,
+                'context' => 'book',
+            ]);
         }
 
         $model = Book::query()
@@ -36,6 +39,7 @@ class PublicBookController extends Controller
             ->whereBelongsTo($user)
             ->whereKeyNot($model->getKey())
             ->inLanguage($model->language)
+            ->with('user')
             ->orderByDesc('rating')
             ->orderByDesc('created_at')
             ->limit(4)
@@ -46,6 +50,7 @@ class PublicBookController extends Controller
                 ->whereBelongsTo($user)
                 ->whereKeyNot($model->getKey())
                 ->whereNotIn('id', $related->pluck('id'))
+                ->with('user')
                 ->orderByDesc('created_at')
                 ->limit(4 - $related->count())
                 ->get();

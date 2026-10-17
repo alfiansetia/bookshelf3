@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { BookOpen, SearchX } from '@lucide/vue';
 import EmptyState from '@/components/bookshelf/EmptyState.vue';
 import ProfileHero from '@/components/bookshelf/ProfileHero.vue';
 import ShelfFilterBar from '@/components/bookshelf/ShelfFilterBar.vue';
 import ShelfRenderer from '@/components/bookshelf/shelves/ShelfRenderer.vue';
+import JsonLd from '@/components/seo/JsonLd.vue';
+import SeoHead from '@/components/seo/SeoHead.vue';
 import { Button } from '@/components/ui/button';
 import { formatNumber } from '@/lib/format';
 import { create } from '@/routes/books';
@@ -50,19 +52,40 @@ const hasActiveFilters = computed(
 const isTruncated = computed(() => props.filteredTotal > props.limit);
 
 const pageTitle = computed(() => `Rak buku ${props.profile.name}`);
+
+const description = computed(
+    () =>
+        props.profile.tagline ??
+        `Koleksi buku yang sudah dibaca ${props.profile.name}.`,
+);
+
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'ProfilePage',
+        url: props.canonical,
+        inLanguage: 'id-ID',
+        mainEntity: {
+            '@type': 'Person',
+            name: props.profile.name,
+            alternateName: `@${props.profile.username}`,
+            url: props.canonical,
+            description: props.profile.bio ?? props.profile.tagline ?? undefined,
+            image: props.profile.avatar_url ?? undefined,
+        },
+    },
+]);
 </script>
 
 <template>
-    <Head :title="pageTitle">
-        <link rel="canonical" :href="props.canonical" />
-        <meta
-            name="description"
-            :content="
-                props.profile.tagline ??
-                `Koleksi buku yang sudah dibaca ${props.profile.name}.`
-            "
-        />
-    </Head>
+    <SeoHead
+        :title="pageTitle"
+        :description="description"
+        :canonical="props.canonical"
+        :image="props.profile.avatar_url"
+        type="profile"
+    />
+    <JsonLd :data="structuredData" />
 
     <div class="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
         <ProfileHero

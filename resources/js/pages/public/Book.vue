@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import {
     ArrowLeft,
     BookOpen,
@@ -17,6 +17,8 @@ import SectionHeading from '@/components/bookshelf/SectionHeading.vue';
 import ShareButton from '@/components/bookshelf/ShareButton.vue';
 import StarRating from '@/components/bookshelf/StarRating.vue';
 import StatusBadge from '@/components/bookshelf/StatusBadge.vue';
+import JsonLd from '@/components/seo/JsonLd.vue';
+import SeoHead from '@/components/seo/SeoHead.vue';
 import { Button } from '@/components/ui/button';
 import { formatDateRange, formatNumber, readingTime } from '@/lib/format';
 import { edit } from '@/routes/books';
@@ -72,19 +74,63 @@ const metas = computed(() =>
             item !== null,
     ),
 );
+
+const pageTitle = computed(
+    () => `${props.book.title} — Rak ${props.profile.name}`,
+);
+
+const description = computed(
+    () =>
+        props.book.synopsis ??
+        `${props.book.title} oleh ${props.book.author}, ada di rak ${props.profile.name}.`,
+);
+
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'Book',
+        name: props.book.title,
+        author: { '@type': 'Person', name: props.book.author },
+        url: props.canonical,
+        description: props.book.synopsis ?? undefined,
+        image: props.book.cover_url ?? undefined,
+        inLanguage: props.book.language,
+        numberOfPages: props.book.total_pages ?? undefined,
+        publisher: props.book.publisher
+            ? { '@type': 'Organization', name: props.book.publisher }
+            : undefined,
+        datePublished: props.book.published_year
+            ? String(props.book.published_year)
+            : undefined,
+        review: props.book.rating
+            ? {
+                  '@type': 'Review',
+                  author: {
+                      '@type': 'Person',
+                      name: props.profile.name,
+                  },
+                  reviewBody: props.book.review ?? undefined,
+                  reviewRating: {
+                      '@type': 'Rating',
+                      ratingValue: props.book.rating,
+                      bestRating: 5,
+                      worstRating: 1,
+                  },
+              }
+            : undefined,
+    },
+]);
 </script>
 
 <template>
-    <Head :title="`${props.book.title} — Rak ${props.profile.name}`">
-        <link rel="canonical" :href="props.canonical" />
-        <meta
-            name="description"
-            :content="
-                props.book.synopsis ??
-                `${props.book.title} oleh ${props.book.author}, ada di rak ${props.profile.name}.`
-            "
-        />
-    </Head>
+    <SeoHead
+        :title="pageTitle"
+        :description="description"
+        :canonical="props.canonical"
+        :image="props.book.cover_url"
+        type="book"
+    />
+    <JsonLd :data="structuredData" />
 
     <div class="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-10">
         <div class="flex flex-wrap items-center justify-between gap-3">

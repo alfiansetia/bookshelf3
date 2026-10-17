@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
 import { Compass, Search, SearchX, Sparkles, Users } from '@lucide/vue';
 import EmptyState from '@/components/bookshelf/EmptyState.vue';
 import SectionHeading from '@/components/bookshelf/SectionHeading.vue';
 import ShelfPagination from '@/components/bookshelf/ShelfPagination.vue';
+import JsonLd from '@/components/seo/JsonLd.vue';
+import SeoHead from '@/components/seo/SeoHead.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,8 +28,25 @@ const props = defineProps<{
     shelves: Paginated<ShelfCard>;
     filters: { search: string | null; sort: string };
     sortOptions: SortOption[];
+    canonical: string;
     numbers: { readers: number; books: number; finished: number };
 }>();
+
+const description =
+    'Telusuri rak buku publik dari para pembaca dan temukan rekomendasi bacaan berikutnya, lengkap dengan rating dan catatan pribadinya.';
+
+const isSearchResult = computed(() => Boolean(props.filters.search));
+
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'Jelajah rak publik',
+        url: props.canonical,
+        description,
+        inLanguage: 'id-ID',
+    },
+]);
 
 const search = ref(props.filters.search ?? '');
 
@@ -71,12 +90,13 @@ function changeSort(value: string): void {
 </script>
 
 <template>
-    <Head title="Jelajah rak">
-        <meta
-            name="description"
-            content="Telusuri rak buku publik dari para pembaca dan temukan rekomendasi bacaan berikutnya."
-        />
-    </Head>
+    <SeoHead
+        title="Jelajah rak publik"
+        :description="description"
+        :canonical="props.canonical"
+        :noindex="isSearchResult"
+    />
+    <JsonLd :data="structuredData" />
 
     <div class="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6 sm:py-14">
         <section class="space-y-6 text-center">

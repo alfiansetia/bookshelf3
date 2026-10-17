@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { Heart, Library } from '@lucide/vue';
+import { openCookieConsent } from '@/lib/cookieConsent';
 import { explore, home, login, register } from '@/routes';
 import { index as booksIndex } from '@/routes/books';
+import { cookie as cookiePolicy } from '@/routes/legal';
 
 const page = usePage();
 const year = new Date().getFullYear();
@@ -23,13 +25,17 @@ const columns = [
             { label: 'Rak saya', href: booksIndex() },
         ],
     },
+    {
+        title: 'Legal',
+        links: [{ label: 'Kebijakan cookie', href: cookiePolicy() }],
+    },
 ];
 </script>
 
 <template>
     <footer class="mt-16 border-t border-border/70 bg-muted/30">
         <div class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
-            <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
                 <div class="space-y-3 lg:col-span-2">
                     <Link :href="home()" class="flex items-center gap-2">
                         <span
@@ -80,11 +86,22 @@ const columns = [
                     &copy; {{ year }} {{ page.props.name }}. Dibuat untuk para
                     pembaca.
                 </p>
-                <p class="inline-flex items-center gap-1.5">
-                    Dibuat dengan
-                    <Heart class="size-3.5 fill-current text-rose-500" />
-                    di Indonesia
-                </p>
+                <div
+                    class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end"
+                >
+                    <button
+                        type="button"
+                        class="transition-colors hover:text-primary"
+                        @click="openCookieConsent"
+                    >
+                        Pengaturan cookie
+                    </button>
+                    <p class="inline-flex items-center gap-1.5">
+                        Dibuat dengan
+                        <Heart class="size-3.5 fill-current text-rose-500" />
+                        di Indonesia
+                    </p>
+                </div>
             </div>
         </div>
     </footer>

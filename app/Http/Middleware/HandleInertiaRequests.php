@@ -42,6 +42,13 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'seo' => [
+                'siteName' => config('bookshelf.seo.title_suffix'),
+                'description' => config('bookshelf.seo.description'),
+                'image' => url(config('bookshelf.seo.image')),
+                'locale' => config('bookshelf.seo.locale'),
+                'twitter' => config('bookshelf.seo.twitter'),
+            ],
         ];
     }
 }

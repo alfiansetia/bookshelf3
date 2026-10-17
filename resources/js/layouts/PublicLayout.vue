@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CookieConsent from '@/components/CookieConsent.vue';
 import PublicFooter from '@/components/PublicFooter.vue';
 import PublicHeader from '@/components/PublicHeader.vue';
 import { Toaster } from '@/components/ui/sonner';
@@ -14,5 +15,6 @@ import { Toaster } from '@/components/ui/sonner';
 
         <PublicFooter />
         <Toaster />
+        <CookieConsent />
     </div>
 </template>

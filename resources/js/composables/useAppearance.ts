@@ -1,5 +1,6 @@
 import type { ComputedRef, Ref } from 'vue';
 import { computed, onMounted, ref } from 'vue';
+import { allowsPreferences } from '@/lib/cookieConsent';
 import type { Appearance, ResolvedAppearance } from '@/types';
 
 export type { Appearance, ResolvedAppearance };
@@ -70,6 +71,22 @@ const handleSystemThemeChange = () => {
     updateTheme(currentAppearance || 'system');
 };
 
+/**
+ * Buang preferensi tampilan yang tersimpan, misalnya saat pengguna menolak
+ * cookie preferensi.
+ */
+export function clearAppearancePreference(): void {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    localStorage.removeItem('appearance');
+
+    if (typeof document !== 'undefined') {
+        document.cookie = 'appearance=;path=/;max-age=0;SameSite=Lax';
+    }
+}
+
 export function initializeTheme(): void {
     if (typeof window === 'undefined') {
         return;
@@ -107,11 +124,11 @@ export function useAppearance(): UseAppearanceReturn {
     function updateAppearance(value: Appearance) {
         appearance.value = value;
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', value);
-
-        // Store in cookie for SSR...
-        setCookie('appearance', value);
+        // Cookie preferensi hanya disimpan bila pengguna menyetujuinya...
+        if (allowsPreferences()) {
+            localStorage.setItem('appearance', value);
+            setCookie('appearance', value);
+        }
 
         updateTheme(value);
     }

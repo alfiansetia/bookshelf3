@@ -20,11 +20,19 @@ it('menampilkan rak publik kepada pengunjung', function () {
         );
 });
 
-it('menyembunyikan rak privat dari pengunjung', function () {
+it('memberi tahu pengunjung saat rak bersifat privat', function () {
     $owner = User::factory()->privateShelf()->create(['username' => 'pembaca-privat']);
     Book::factory()->for($owner)->create();
 
-    $this->get('/pembaca-privat')->assertNotFound();
+    $this->get('/pembaca-privat')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/Private')
+            ->where('username', 'pembaca-privat')
+            ->where('context', 'profile')
+            ->missing('rows')
+            ->missing('stats'),
+        );
 
     $this->actingAs($owner)
         ->get('/pembaca-privat')
@@ -32,6 +40,20 @@ it('menyembunyikan rak privat dari pengunjung', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('public/Profile')
             ->where('isOwner', true),
+        );
+});
+
+it('memberi tahu pengunjung saat buku ada di rak privat', function () {
+    $owner = User::factory()->privateShelf()->create(['username' => 'rak-rahasia']);
+    $book = Book::factory()->for($owner)->create();
+
+    $this->get("/rak-rahasia/{$book->slug}")
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/Private')
+            ->where('username', 'rak-rahasia')
+            ->where('context', 'book')
+            ->missing('book'),
         );
 });
 

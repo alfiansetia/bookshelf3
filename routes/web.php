@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\LandingController;
@@ -10,7 +11,9 @@ use App\Http\Controllers\Onboarding\UsernameAvailabilityController;
 use App\Http\Controllers\Onboarding\UsernameController;
 use App\Http\Controllers\Shelf\PublicBookController;
 use App\Http\Controllers\Shelf\PublicProfileController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +24,35 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingController::class)->name('home');
 Route::get('jelajah', ExploreController::class)->name('explore');
+Route::get('kebijakan-cookie', CookiePolicyController::class)->name('legal.cookie');
+
+/*
+|--------------------------------------------------------------------------
+| Berkas untuk mesin pencari
+|--------------------------------------------------------------------------
+|
+| Didahulukan agar tidak tertangkap pola username pada route rak publik.
+|
+*/
+
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
+
+Route::get('robots.txt', fn (): Response => response(
+    implode("\n", [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /dashboard',
+        'Disallow: /books/',
+        'Disallow: /settings/',
+        'Disallow: /onboarding/',
+        'Disallow: /auth/',
+        '',
+        'Sitemap: '.route('sitemap'),
+        '',
+    ]),
+    200,
+    ['Content-Type' => 'text/plain; charset=UTF-8'],
+))->name('robots');
 
 /*
 |--------------------------------------------------------------------------

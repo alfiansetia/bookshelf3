@@ -7,3 +7,11 @@ export type FlashToast = {
     type: 'success' | 'info' | 'warning' | 'error';
     message: string;
 };
+
+export type SeoDefaults = {
+    siteName: string;
+    description: string;
+    image: string;
+    locale: string;
+    twitter: string | null;
+};

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
@@ -15,6 +16,8 @@ import {
 } from '@lucide/vue';
 import SectionHeading from '@/components/bookshelf/SectionHeading.vue';
 import ShelfThemePreview from '@/components/bookshelf/ShelfThemePreview.vue';
+import JsonLd from '@/components/seo/JsonLd.vue';
+import SeoHead from '@/components/seo/SeoHead.vue';
 import { Button } from '@/components/ui/button';
 import { iconByName } from '@/lib/icons';
 import { formatNumber } from '@/lib/format';
@@ -28,12 +31,35 @@ const props = defineProps<{
     themes: ShelfThemeOption[];
     statuses: StatusOption[];
     featuredShelves: FeaturedShelf[];
+    canonical: string;
     numbers: {
         readers: number;
         books: number;
         finished: number;
     };
 }>();
+
+const description =
+    'Rak buku pribadi yang bisa dibagikan. Catat buku yang sedang dan sudah kamu baca, beri rating dan catatan, lalu bagikan raknya lewat satu tautan.';
+
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Rak Buku',
+        url: props.canonical,
+        description,
+        inLanguage: 'id-ID',
+        potentialAction: {
+            '@type': 'SearchAction',
+            target: {
+                '@type': 'EntryPoint',
+                urlTemplate: `${explore.url()}?search={search_term_string}`,
+            },
+            'query-input': 'required name=search_term_string',
+        },
+    },
+]);
 
 const features = [
     {
@@ -99,6 +125,13 @@ function coverOf(shelf: FeaturedShelf): string | null {
 
 <template>
     <div>
+        <SeoHead
+            title="Rak buku pribadi yang bisa dibagikan"
+            :description="description"
+            :canonical="canonical"
+        />
+        <JsonLd :data="structuredData" />
+
         <section class="relative overflow-hidden">
             <div
                 class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-background to-background"

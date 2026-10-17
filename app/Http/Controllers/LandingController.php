@@ -45,6 +45,7 @@ class LandingController extends Controller
             'themes' => ShelfTheme::options(),
             'statuses' => BookStatus::options(),
             'featuredShelves' => $featuredShelves,
+            'canonical' => route('home'),
             'numbers' => [
                 'readers' => User::query()->publicShelf()->count(),
                 'books' => Book::query()->count(),
