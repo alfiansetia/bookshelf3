@@ -21,8 +21,8 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          # Gagalkan step begitu satu perintah error (SSH non-interaktif).
-          script_stop: true
+          # NOTE: input `script_stop` sudah DIHAPUS di appleboy/ssh-action v1.2.x.
+          # Penggantinya: `set -e` di awal script di bawah (per README-nya).
           script: |
             set -e
             cd ${{ secrets.PROJECT_PATH }}
