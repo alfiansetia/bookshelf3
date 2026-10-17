@@ -155,7 +155,7 @@ Cara mengisinya:
    access** dan aktifkan **r2.dev** (atau pasang domain sendiri). Alamat yang
    muncul itulah nilai `R2_URL`.
 2. Buka **Manage R2 API Tokens → Create API token**, beri permission
-   *Object Read & Write*, lalu salin Access Key ID dan Secret Access Key.
+   _Object Read & Write_, lalu salin Access Key ID dan Secret Access Key.
 3. `R2_ENDPOINT` memakai Account ID dari halaman utama R2.
 
 Catatan:

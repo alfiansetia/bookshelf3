@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import { Heart, Loader2, Save, X } from '@lucide/vue';
 import CoverUploadField from '@/components/bookshelf/CoverUploadField.vue';
+import DatePicker from '@/components/bookshelf/DatePicker.vue';
 import StarRatingInput from '@/components/bookshelf/StarRatingInput.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -339,21 +340,13 @@ function submit(): void {
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="grid gap-2">
                     <Label for="started_at">Tanggal mulai baca</Label>
-                    <Input
-                        id="started_at"
-                        v-model="form.started_at"
-                        type="date"
-                    />
+                    <DatePicker id="started_at" v-model="form.started_at" />
                     <InputError :message="form.errors.started_at" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="finished_at">Tanggal selesai</Label>
-                    <Input
-                        id="finished_at"
-                        v-model="form.finished_at"
-                        type="date"
-                    />
+                    <DatePicker id="finished_at" v-model="form.finished_at" />
                     <InputError :message="form.errors.finished_at" />
                 </div>
             </div>

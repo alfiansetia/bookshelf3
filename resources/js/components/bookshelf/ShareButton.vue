@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useClipboard } from '@vueuse/core';
 import { Check, Link2, Share2 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
@@ -26,10 +26,17 @@ const props = withDefaults(
 
 const { copy } = useClipboard({ legacy: true });
 const copied = ref(false);
-const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
+// Dihitung setelah mount supaya SSR dan client merender ikon yang sama.
+// `navigator.share` hanya ada di browser, jadi menilainya saat render
+// server membuat hydration mismatch (server: Link2, client: Share2).
+const canShare = ref(false);
+
+onMounted(() => {
+    canShare.value = 'share' in navigator;
+});
 
 async function share(): Promise<void> {
-    if (canShare) {
+    if (canShare.value) {
         try {
             await navigator.share({
                 url: props.url,
