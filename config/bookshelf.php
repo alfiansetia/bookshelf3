@@ -74,7 +74,7 @@ return [
     */
 
     'cover' => [
-        'disk' => 'public',
+        'disk' => env('BOOKSHELF_IMAGE_DISK', 'public'),
         'directory' => 'covers',
         'max_kilobytes' => 3072,
         'mimes' => ['jpg', 'jpeg', 'png', 'webp'],
@@ -86,7 +86,7 @@ return [
     ],
 
     'avatar' => [
-        'disk' => 'public',
+        'disk' => env('BOOKSHELF_IMAGE_DISK', 'public'),
         'directory' => 'avatars',
         'max_kilobytes' => 2048,
         'mimes' => ['jpg', 'jpeg', 'png', 'webp'],

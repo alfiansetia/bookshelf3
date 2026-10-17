@@ -60,6 +60,22 @@ return [
             'report' => false,
         ],
 
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => env('R2_REGION', 'auto'),
+            'bucket' => env('R2_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'url' => env('R2_URL') ?: null,
+            'use_path_style_endpoint' => true,
+            // R2 mengabaikan ACL, dan hanya mendukung checksum mode COMPOSITE,
+            // jadi jangan kirim header `x-amz-acl` maupun checksum bawaan SDK.
+            'request_checksum_calculation' => 'when_required',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

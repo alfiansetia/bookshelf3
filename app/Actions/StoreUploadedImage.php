@@ -33,11 +33,14 @@ class StoreUploadedImage
         ini_set('memory_limit', self::PROCESSING_MEMORY_LIMIT);
 
         try {
+            // Sengaja tanpa `storePublicly()`: R2 mengabaikan ACL, dan bucket S3
+            // modern menggagalkan permintaan yang membawa `x-amz-acl`. Akses
+            // publik diatur di sisi bucket (domain r2.dev atau domain sendiri).
             $path = Image::fromUpload($file)
                 ->orient()
                 ->scale(width: $settings['max_width'], height: $settings['max_height'])
                 ->optimize(quality: $settings['quality'])
-                ->storePublicly(path: $folder, disk: $settings['disk']);
+                ->store(path: $folder, disk: $settings['disk']);
         } finally {
             ini_set('memory_limit', $previousLimit);
         }

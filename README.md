@@ -52,7 +52,7 @@ application key, migrasi database, `npm install`, dan `npm run build`.
 Setelah itu lengkapi:
 
 ```bash
-php artisan storage:link   # agar sampul & avatar bisa diakses publik
+php artisan storage:link   # hanya perlu kalau gambar disimpan di disk lokal
 php artisan db:seed        # akun demo + 90-an buku contoh
 ```
 
@@ -125,6 +125,43 @@ username rak, karena username itulah yang menjadi alamat publiknya.
 
 > Saat mengubah `.env` di produksi, jalankan `php artisan config:clear` (atau
 > `config:cache`) agar nilai baru terpakai.
+
+---
+
+## Menyimpan sampul & avatar di Cloudflare R2
+
+Secara default gambar disimpan di disk `public` lokal. Untuk menaruhnya di
+Cloudflare R2, isi bagian `R2_*` di `.env` lalu ubah `BOOKSHELF_IMAGE_DISK`
+menjadi `r2`:
+
+```dotenv
+R2_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+R2_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+R2_BUCKET=rak-buku
+R2_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+R2_URL=https://pub-xxxxxxxxxxxx.r2.dev
+R2_REGION=auto
+BOOKSHELF_IMAGE_DISK=r2
+```
+
+Cara mengisinya:
+
+1. Buat bucket di dashboard Cloudflare R2, lalu buka **Settings → Public
+   access** dan aktifkan **r2.dev** (atau pasang domain sendiri). Alamat yang
+   muncul itulah nilai `R2_URL`.
+2. Buka **Manage R2 API Tokens → Create API token**, beri permission
+   *Object Read & Write*, lalu salin Access Key ID dan Secret Access Key.
+3. `R2_ENDPOINT` memakai Account ID dari halaman utama R2.
+
+Catatan:
+
+- Sampul & avatar dikonversi ke WebP dan diperkecil sebelum dikirim ke R2, jadi
+  berkas yang tersimpan sudah ringan (lihat `app/Actions/StoreUploadedImage.php`).
+- R2 mengabaikan ACL dan hanya mendukung checksum mode `COMPOSITE`, karena itu
+  disk `r2` di `config/filesystems.php` tidak memakai `visibility` dan
+  mematikan checksum bawaan AWS SDK (`request_checksum_calculation`). Akses
+  publik diatur di pengaturan bucket, bukan per berkas.
+- Kalau memakai R2, `php artisan storage:link` tidak diperlukan.
 
 ---
 

@@ -51,6 +51,27 @@ it('memperkecil avatar yang diunggah', function () {
         ->and([$size[0], $size[1]])->toBe([384, 512]);
 });
 
+it('menyimpan unggahan ke disk yang dikonfigurasi', function () {
+    Storage::fake('r2');
+    config(['bookshelf.cover.disk' => 'r2']);
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('books.store'), [
+            'title' => 'Buku di R2',
+            'author' => 'Penulis',
+            'language' => 'id',
+            'status' => 'reading',
+            'cover' => UploadedFile::fake()->image('sampul.jpg', 1200, 1800),
+        ])
+        ->assertSessionHasNoErrors();
+
+    $path = (string) Book::query()->whereBelongsTo($user)->sole()->cover_path;
+
+    Storage::disk('r2')->assertExists($path);
+});
+
 it('menolak sampul yang dimensinya terlalu besar', function () {
     Storage::fake('public');
 
