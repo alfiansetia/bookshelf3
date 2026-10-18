@@ -54,13 +54,21 @@ COPY . .
 # bernilai false, dan BladeCompiler melempar:
 #   InvalidArgumentException: Please provide a valid cache path.
 #
-# Gejalanya di build aset: `wayfinder:generate` merender template Blade
-# (.blade.ts) sehingga gagal, Laravel mencetak exception itu ke STDOUT, dan
-# plugin Vite hanya melaporkan "Command failed" tanpa detail apa pun.
-RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs storage/app/public bootstrap/cache database \
-    && touch database/database.sqlite \
-    && chown -R www-data:www-data storage bootstrap/cache database \
-    && chmod -R 775 storage bootstrap/cache database
+# Path ditulis satu per satu, TANPA brace expansion seperti
+# `storage/framework/{sessions,views,cache}`: RUN dijalankan lewat /bin/sh,
+# dan /bin/sh pada image Debian adalah dash yang tidak mendukung `{a,b,c}`.
+# Dash akan membuat satu direktori bernama literal "{sessions,views,cache}",
+# sehingga storage/framework/views tetap tidak ada.
+RUN mkdir -p /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/logs \
+    /var/www/html/storage/app/public \
+    /var/www/html/bootstrap/cache \
+    /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
 # Autoload + manifest paket disiapkan sebelum build aset supaya `php artisan`
 # (dipanggil plugin Wayfinder) sudah bisa boot dengan vendor/ yang lengkap.
