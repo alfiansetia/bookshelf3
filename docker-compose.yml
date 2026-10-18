@@ -19,8 +19,7 @@ services:
       - "9000"
     volumes:
       # Persistensi storage + .env agar bisa diubah tanpa rebuild.
-      # ./database hanya relevan untuk sqlite lokal (dan menampung hasil
-      # mysqldump dari workflow deploy); di produksi MySQL tidak dipakai.
+      # ./database hanya relevan untuk sqlite lokal; di produksi MySQL tidak dipakai.
       - ./storage:/var/www/html/storage
       - ./database:/var/www/html/database
       - ./.env:/var/www/html/.env:ro

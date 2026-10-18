@@ -9,8 +9,8 @@
 FROM php:8.4-fpm AS app
 
 # System deps + PHP extensions (Laravel, MySQL prod + sqlite lokal) + binary pendukung:
-# - default-mysql-client : client + mysqldump (backup DB MySQL di workflow deploy,
-#                          dan koneksi manual ke shared MySQL saat debugging)
+# - default-mysql-client : client mysql untuk koneksi manual ke shared MySQL
+#                          saat debugging (lihat catatan di docker-compose.yml)
 # - sqlite3              : inspeksi database.sqlite lokal dari dalam kontainer
 # - gosu                 : drop privilege ke www-data di entrypoint
 # - procps               : pidof untuk healthcheck
