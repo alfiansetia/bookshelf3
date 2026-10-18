@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -27,6 +28,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'theme' => 'wood',
             'is_public' => true,
+            'role' => UserRole::User,
         ];
     }
 
@@ -57,6 +59,27 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_public' => false,
+        ]);
+    }
+
+    /**
+     * Pengguna dengan akses admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Admin,
+        ]);
+    }
+
+    /**
+     * Pengguna yang diblokir beserta alasannya.
+     */
+    public function blocked(string $reason = 'Melanggar aturan komunitas.'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'blocked_at' => now(),
+            'blocked_reason' => $reason,
         ]);
     }
 }

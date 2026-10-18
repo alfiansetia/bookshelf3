@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\ShelfTheme;
 use App\SocialPlatform;
+use App\UserRole;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -36,10 +38,15 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $social_youtube
  * @property string|null $social_linkedin
  * @property string|null $social_website
+ * @property UserRole $role
+ * @property CarbonImmutable|null $blocked_at
+ * @property string|null $blocked_reason
+ * @property int|null $blocked_by_id
  * @property Carbon|null $email_verified_at
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read User|null $blockedBy
  * @property-read string|null $avatar
  * @property-read string|null $avatar_url
  * @property-read int|null $books_count
@@ -49,6 +56,7 @@ use Illuminate\Support\Facades\Storage;
     'name', 'email', 'username', 'google_id', 'avatar_path', 'tagline',
     'bio', 'theme', 'is_public', 'social_instagram', 'social_tiktok', 'social_x',
     'social_youtube', 'social_linkedin', 'social_website',
+    'role', 'blocked_at', 'blocked_reason', 'blocked_by_id',
 ])]
 #[Hidden(['remember_token', 'google_id', 'avatar_path'])]
 class User extends Authenticatable
@@ -74,7 +82,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'username_changed_at' => 'datetime',
             'avatar_removed_at' => 'datetime',
+            'blocked_at' => 'datetime',
             'theme' => ShelfTheme::class,
+            'role' => UserRole::class,
             'is_public' => 'boolean',
         ];
     }
@@ -87,6 +97,16 @@ class User extends Authenticatable
     public function books(): HasMany
     {
         return $this->hasMany(Book::class);
+    }
+
+    /**
+     * Admin yang memblokir akun ini (null bila belum pernah diblokir).
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function blockedBy(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'blocked_by_id');
     }
 
     /**
@@ -119,6 +139,60 @@ class User extends Authenticatable
     public function hasUsername(): bool
     {
         return filled($this->username);
+    }
+
+    /**
+     * Apakah akun ini punya akses admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
+    }
+
+    /**
+     * Apakah akun ini sedang diblokir.
+     */
+    public function isBlocked(): bool
+    {
+        return $this->blocked_at !== null;
+    }
+
+    /**
+     * Alasan blokir yang boleh dibaca pengguna dan pengunjung raknya.
+     */
+    public function blockedMessage(): string
+    {
+        if (! $this->isBlocked()) {
+            return '';
+        }
+
+        return filled($this->blocked_reason)
+            ? (string) $this->blocked_reason
+            : 'Tidak ada keterangan tambahan dari admin.';
+    }
+
+    /**
+     * Blokir akun ini disertai alasannya.
+     */
+    public function block(string $reason, ?self $admin = null): void
+    {
+        $this->forceFill([
+            'blocked_at' => now(),
+            'blocked_reason' => $reason,
+            'blocked_by_id' => $admin?->getKey(),
+        ])->save();
+    }
+
+    /**
+     * Buka blokir akun ini.
+     */
+    public function unblock(): void
+    {
+        $this->forceFill([
+            'blocked_at' => null,
+            'blocked_reason' => null,
+            'blocked_by_id' => null,
+        ])->save();
     }
 
     /**
@@ -200,11 +274,15 @@ class User extends Authenticatable
     /**
      * Rak yang sudah punya username dan boleh diakses publik.
      *
+     * Akun yang diblokir disembunyikan dari jelajah, halaman depan, dan sitemap.
+     *
      * @param  Builder<User>  $query
      */
     public function scopePublicShelf(Builder $query): void
     {
-        $query->where('is_public', true)->whereNotNull('username');
+        $query->where('is_public', true)
+            ->whereNotNull('username')
+            ->whereNull('blocked_at');
     }
 
     /**

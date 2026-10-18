@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Shelf;
 
+use App\Concerns\RendersBlockedShelf;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\ShelfProfileResource;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class PublicBookController extends Controller
 {
+    use RendersBlockedShelf;
+
     /**
      * Detail satu buku pada rak publik.
      */
@@ -21,6 +24,10 @@ class PublicBookController extends Controller
         $user = User::query()->whereUsername($username)->firstOrFail();
         $viewer = $request->user();
         $isOwner = $viewer !== null && $viewer->id === $user->id;
+
+        if ($user->isBlocked()) {
+            return $this->blockedShelf($user, 'book');
+        }
 
         if (! $user->is_public && ! $isOwner) {
             return Inertia::render('public/Private', [

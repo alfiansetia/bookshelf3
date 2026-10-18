@@ -18,9 +18,18 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useClientValidation } from '@/composables/useClientValidation';
 import { iconByName } from '@/lib/icons';
 import { statusStyle } from '@/lib/statusStyles';
 import { cn } from '@/lib/utils';
+import {
+    maxCharacters,
+    notBefore,
+    notLaterThanToday,
+    required,
+    rulesFor,
+    wholeNumber,
+} from '@/lib/validation';
 import { index as booksIndex, store, update } from '@/routes/books';
 import type {
     Book,
@@ -68,6 +77,53 @@ const existingCover = ref<string | null>(props.book?.cover_url ?? null);
 const synopsisMax = 6000;
 const reviewMax = 6000;
 
+const publishedYearMax = new Date().getFullYear() + 1;
+
+const { validate } = useClientValidation(
+    form,
+    rulesFor<BookFormValues>({
+        title: [
+            required('Judul buku wajib diisi.'),
+            maxCharacters(255, 'Judul buku maksimal 255 karakter.'),
+        ],
+        author: [
+            required('Nama penulis wajib diisi.'),
+            maxCharacters(255, 'Nama penulis maksimal 255 karakter.'),
+        ],
+        publisher: [maxCharacters(255, 'Nama penerbit maksimal 255 karakter.')],
+        published_year: [
+            wholeNumber(
+                1000,
+                publishedYearMax,
+                `Tahun terbit harus antara 1000 dan ${publishedYearMax}.`,
+            ),
+        ],
+        language: [required('Bahasa buku wajib dipilih.')],
+        status: [required('Status baca wajib dipilih.')],
+        synopsis: [
+            maxCharacters(synopsisMax, 'Sinopsis maksimal 6000 karakter.'),
+        ],
+        review: [maxCharacters(reviewMax, 'Review maksimal 6000 karakter.')],
+        total_pages: [
+            wholeNumber(
+                1,
+                20000,
+                'Jumlah halaman minimal 1 dan maksimal 20000.',
+            ),
+        ],
+        started_at: [
+            notLaterThanToday('Tanggal mulai tidak boleh melewati hari ini.'),
+        ],
+        finished_at: [
+            notBefore(
+                'started_at',
+                'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',
+            ),
+            notLaterThanToday('Tanggal selesai tidak boleh melewati hari ini.'),
+        ],
+    }),
+);
+
 function chooseStatus(value: BookStatus): void {
     form.status = value;
 }
@@ -87,6 +143,10 @@ function onCoverRemove(): void {
 }
 
 function submit(): void {
+    if (!validate()) {
+        return;
+    }
+
     if (props.book !== null) {
         form.put(update.url(props.book.id), { preserveScroll: true });
 

@@ -53,6 +53,15 @@ class GoogleAuthController extends Controller
 
         $user = $this->findOrCreateUser($googleUser);
 
+        if ($user->isBlocked()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun kamu diblokir: '.$user->blockedMessage(),
+            ]);
+
+            return to_route('login');
+        }
+
         Auth::login($user, remember: true);
         $request->session()->regenerate();
 

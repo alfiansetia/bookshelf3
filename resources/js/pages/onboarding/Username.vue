@@ -7,7 +7,10 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useClientValidation } from '@/composables/useClientValidation';
+import { usernameRule } from '@/lib/username';
 import { cn } from '@/lib/utils';
+import { rulesFor } from '@/lib/validation';
 import { update } from '@/routes/onboarding/username';
 
 defineOptions({
@@ -27,6 +30,16 @@ const props = defineProps<{
 const form = useForm({
     username: props.suggestion,
 });
+
+const { validate } = useClientValidation(
+    form,
+    rulesFor<{ username: string }>({
+        username: usernameRule({
+            min: props.rules.min,
+            max: props.rules.max,
+        }),
+    }),
+);
 
 const checking = ref(false);
 const status = ref<'idle' | 'available' | 'taken' | 'invalid'>('idle');
@@ -91,6 +104,10 @@ watch(
 );
 
 function submit(): void {
+    if (!validate()) {
+        return;
+    }
+
     form.put(update.url(), { preserveScroll: true });
 }
 </script>

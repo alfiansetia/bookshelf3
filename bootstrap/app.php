@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsNotBlocked;
 use App\Http\Middleware\EnsureUsernameIsSet;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -28,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'shelf.username' => EnsureUsernameIsSet::class,
+            'not.blocked' => EnsureUserIsNotBlocked::class,
+            'admin' => EnsureUserIsAdmin::class,
         ]);
 
         $middleware->web(append: [

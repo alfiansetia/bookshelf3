@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import CookieConsent from '@/components/CookieConsent.vue';
+import { Toaster } from '@/components/ui/sonner';
 import { home } from '@/routes';
 
 defineProps<{
@@ -42,5 +43,7 @@ defineProps<{
         </div>
 
         <CookieConsent />
+
+        <Toaster />
     </div>
 </template>

@@ -95,7 +95,7 @@ Route::post('logout', LogoutController::class)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'not.blocked'])->group(function () {
     Route::get('onboarding/username', [UsernameController::class, 'edit'])
         ->name('onboarding.username.edit');
 
@@ -113,13 +113,14 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'shelf.username'])->group(function () {
+Route::middleware(['auth', 'not.blocked', 'shelf.username'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('books', BookController::class)->except('show');
 });
 
 require __DIR__.'/settings.php';
+require __DIR__.'/admin.php';
 
 /*
 |--------------------------------------------------------------------------

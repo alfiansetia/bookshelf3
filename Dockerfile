@@ -14,11 +14,15 @@ FROM php:8.4-fpm AS app
 # - sqlite3              : inspeksi database.sqlite lokal dari dalam kontainer
 # - gosu                 : drop privilege ke www-data di entrypoint
 # - procps               : pidof untuk healthcheck
+# - libwebp-dev          : GD tanpa dukungan WebP membuat StoreUploadedImage
+#                          gagal dengan "Call to undefined function
+#                          imagewebp()", karena Laravel Image::optimize()
+#                          menulis output WebP secara bawaan.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl unzip zip procps gosu default-mysql-client sqlite3 \
     libpng-dev libonig-dev libxml2-dev libzip-dev libicu-dev libsqlite3-dev \
-    libfreetype6-dev libjpeg62-turbo-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    libfreetype6-dev libjpeg62-turbo-dev libwebp-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip intl opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 

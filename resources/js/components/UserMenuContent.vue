@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import { LogOut, Settings } from '@lucide/vue';
+import { LogOut, Settings, ShieldCheck } from '@lucide/vue';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
 import { logout } from '@/routes';
+import { index as adminUsersIndex } from '@/routes/admin/users';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 
@@ -16,11 +18,13 @@ type Props = {
     user: User;
 };
 
+const props = defineProps<Props>();
+
+const isAdmin = computed(() => props.user.role === 'admin');
+
 const handleLogout = () => {
     router.flushAll();
 };
-
-defineProps<Props>();
 </script>
 
 <template>
@@ -31,6 +35,16 @@ defineProps<Props>();
     </DropdownMenuLabel>
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
+        <DropdownMenuItem v-if="isAdmin" :as-child="true">
+            <Link
+                class="block w-full cursor-pointer"
+                :href="adminUsersIndex()"
+                prefetch
+            >
+                <ShieldCheck class="mr-2 h-4 w-4" />
+                Kelola pengguna
+            </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full cursor-pointer" :href="edit()" prefetch>
                 <Settings class="mr-2 h-4 w-4" />

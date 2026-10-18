@@ -61,6 +61,27 @@ function pick(): void {
     input.value?.click();
 }
 
+/** Format berkas yang diterima, dipakai untuk pesan galat. */
+function acceptedFormats(): string {
+    return props.accept
+        .split(',')
+        .map((mime) => mime.trim().toLowerCase())
+        .filter((mime) => mime !== '')
+        .map((mime) => {
+            const [, subtype = mime] = mime.split('/');
+
+            return subtype === 'jpeg' ? 'JPG' : subtype.toUpperCase();
+        })
+        .join(', ');
+}
+
+function isAcceptedType(type: string): boolean {
+    return props.accept
+        .split(',')
+        .map((mime) => mime.trim().toLowerCase())
+        .includes(type.toLowerCase());
+}
+
 function onFileChange(event: Event): void {
     localError.value = null;
 
@@ -71,8 +92,8 @@ function onFileChange(event: Event): void {
         return;
     }
 
-    if (!file.type.startsWith('image/')) {
-        localError.value = 'Berkas harus berupa gambar.';
+    if (!isAcceptedType(file.type)) {
+        localError.value = `Format berkas harus ${acceptedFormats()}.`;
         emit('update:modelValue', null);
 
         return;

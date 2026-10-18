@@ -9,6 +9,9 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useClientValidation } from '@/composables/useClientValidation';
+import { webAddress } from '@/lib/validation';
+import type { FieldRule, ValidationRules } from '@/lib/validation';
 import { edit as editSocials, update } from '@/routes/socials';
 import type { SocialPlatformOption, SocialProfile } from '@/types';
 
@@ -36,7 +39,65 @@ const form = useForm<Record<string, string>>(
 
 const hasProfiles = computed(() => props.profiles.length > 0);
 
+/**
+ * Rapikan username media sosial sama seperti server: buang tanda `@` di depan,
+ * dan bila yang ditempel berupa URL profil, ambil segmen pertama path-nya.
+ */
+function normalizeHandle(value: string): string {
+    const trimmed = value.trim();
+
+    if (!/^https?:\/\//i.test(trimmed)) {
+        return trimmed.replace(/^@+/, '');
+    }
+
+    let path = '';
+
+    try {
+        path = new URL(trimmed).pathname;
+    } catch {
+        path = '';
+    }
+
+    const segment = path.replace(/^\/+|\/+$/g, '').split('/')[0];
+
+    return (segment === '' ? trimmed : segment).replace(/^@+/, '');
+}
+
+function socialRule(platform: SocialPlatformOption): FieldRule {
+    if (!platform.username_only) {
+        return webAddress(
+            `Alamat ${platform.label} harus berupa tautan yang valid.`,
+        );
+    }
+
+    const message = `Username ${platform.label} hanya boleh berisi huruf, angka, titik, garis bawah, dan tanda hubung.`;
+
+    return (value) => {
+        const handle = normalizeHandle(typeof value === 'string' ? value : '');
+
+        if (handle === '') {
+            return null;
+        }
+
+        return /^[A-Za-z0-9._-]+$/.test(handle) ? null : message;
+    };
+}
+
+// Nilai form berupa record terbuka, jadi aturan dibangun dari daftar platform.
+const validationRules: ValidationRules = Object.fromEntries(
+    props.platforms.map((platform) => [
+        `social_${platform.value}`,
+        socialRule(platform),
+    ]),
+);
+
+const { validate } = useClientValidation(form, validationRules);
+
 function submit(): void {
+    if (!validate()) {
+        return;
+    }
+
     form.patch(update.url(), { preserveScroll: true });
 }
 </script>

@@ -5,7 +5,7 @@ use App\Http\Controllers\Settings\ShelfController;
 use App\Http\Controllers\Settings\SocialLinksController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'not.blocked'])->group(function () {
     Route::redirect('settings', '/settings/profile');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -16,7 +16,7 @@ Route::middleware(['auth'])->group(function () {
     Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
 });
 
-Route::middleware(['auth', 'shelf.username'])->group(function () {
+Route::middleware(['auth', 'not.blocked', 'shelf.username'])->group(function () {
     Route::get('settings/shelf', [ShelfController::class, 'edit'])->name('shelf.edit');
     Route::patch('settings/shelf', [ShelfController::class, 'update'])->name('shelf.update');
 

@@ -12,8 +12,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
+import { useClientValidation } from '@/composables/useClientValidation';
 import { formatDate } from '@/lib/format';
+import { usernameRule } from '@/lib/username';
+import { cn } from '@/lib/utils';
+import {
+    emailAddress,
+    maxCharacters,
+    required,
+    rulesFor,
+} from '@/lib/validation';
 import { edit, update } from '@/routes/profile';
 
 defineOptions({
@@ -44,6 +52,17 @@ const props = defineProps<{
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
+type ProfileFormValues = {
+    _method: string;
+    name: string;
+    email: string;
+    username: string;
+    tagline: string;
+    bio: string;
+    avatar: File | null;
+    remove_avatar: boolean;
+};
+
 const form = useForm({
     _method: 'patch',
     name: user.value.name,
@@ -54,6 +73,33 @@ const form = useForm({
     avatar: null as File | null,
     remove_avatar: false,
 });
+
+const { validate } = useClientValidation(
+    form,
+    rulesFor<ProfileFormValues>({
+        name: [
+            required('Nama wajib diisi.'),
+            maxCharacters(255, 'Nama maksimal 255 karakter.'),
+        ],
+        email: [
+            required('Email wajib diisi.'),
+            emailAddress('Format email belum benar.'),
+            maxCharacters(255, 'Email maksimal 255 karakter.'),
+        ],
+        username: usernameRule({
+            min: props.usernameRules.min,
+            max: props.usernameRules.max,
+        }),
+        tagline: maxCharacters(
+            props.limits.tagline,
+            `Tagline maksimal ${props.limits.tagline} karakter.`,
+        ),
+        bio: maxCharacters(
+            props.limits.bio,
+            `Tentang kamu maksimal ${props.limits.bio} karakter.`,
+        ),
+    }),
+);
 
 const existingAvatar = ref<string | null>(props.profile.avatar_url);
 const usernameChangeDate = computed(() =>
@@ -127,6 +173,10 @@ function onUsernameInput(): void {
 }
 
 function submit(): void {
+    if (!validate()) {
+        return;
+    }
+
     form.post(update.url(), {
         preserveScroll: true,
         forceFormData: true,

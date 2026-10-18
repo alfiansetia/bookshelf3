@@ -118,6 +118,21 @@ return [
         'review' => 6000,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Moderasi Pengguna
+    |--------------------------------------------------------------------------
+    |
+    | Batas panjang alasan blokir yang ditulis admin. Alasannya ditampilkan
+    | kembali ke pengguna yang diblokir sekaligus ke pengunjung raknya.
+    |
+    */
+
+    'moderation' => [
+        'reason_min' => 5,
+        'reason_max' => 500,
+    ],
+
     'rating' => [
         'min' => 1,
         'max' => 5,
@@ -127,6 +142,7 @@ return [
         'books' => 12,
         'shelf' => 24,
         'explore' => 12,
+        'users' => 20,
     ],
 
     /*
