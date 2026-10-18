@@ -88,6 +88,26 @@ class BookSeeder extends Seeder
     ];
 
     /**
+     * Paragraf pengisi untuk sinopsis dan ulasan contoh.
+     *
+     * Sengaja tidak memakai helper `fake()`: helper itu hanya terdefinisi bila
+     * `Faker\Factory` tersedia (lihat helpers.php milik framework), sedangkan
+     * fakerphp/faker ada di require-dev dan image produksi dibangun dengan
+     * `composer install --no-dev`. Pemilihan paragraf di sini deterministik
+     * lewat crc32 judul, jadi isi demo tidak berubah antar-run.
+     *
+     * @var array<int, string>
+     */
+    private const FILLER_PARAGRAPHS = [
+        'Buku ini punya tempo yang enak diikuti. Bab-babnya pendek, jadi terasa ringan dibaca sambil lalu, tapi ide yang dibawa tetap melekat setelah ditutup. Beberapa bagian bahkan sengaja aku baca ulang untuk menikmati detailnya.',
+        'Yang paling kena buatku adalah caranya membangun suasana. Detail kecil—cuaca, kebiasaan tokoh, pilihan kata—dibuat cukup rapat sampai rasanya ikut duduk di ruangan yang sama. Tidak banyak buku yang bisa menjaga konsistensi seperti ini sampai halaman terakhir.',
+        'Struktur ceritanya rapi: setiap bagian punya alasan untuk ada, dan tidak ada bab yang terasa cuma tempelan. Konfliknya tidak selalu besar, tapi selalu punya taruhan yang jelas, jadi tetap ingin dibaca terus.',
+        'Kalau kamu tipe yang suka mencatat kutipan, siapkan pensil. Ada cukup banyak kalimat yang rasanya sayang kalau dilewatkan. Aku sendiri menandai beberapa halaman yang ingin aku buka lagi nanti.',
+        'Buku ini cocok dibaca pelan. Bukan karena sulit, tapi karena banyak hal kecil yang mudah terlewat kalau diburu-buru. Aku menamatkannya di akhir pekan, dan setelah itu butuh jeda sebelum pindah ke judul berikutnya.',
+        'Bagi pembaca yang baru menyukai tema seperti ini, buku tersebut jadi pintu masuk yang bersahabat. Bahasanya tidak berbelit, dan istilah yang muncul dijelaskan tanpa menggurui. Untuk pembaca lama pun masih ada lapisan yang bisa dinikmati.',
+    ];
+
+    /**
      * Run the database seeds.
      */
     public function run(): void
@@ -155,8 +175,7 @@ class BookSeeder extends Seeder
     {
         return implode("\n\n", [
             "Catatan pembuka: \"{$title}\" karya {$author} adalah salah satu buku yang paling sering aku rekomendasikan ke teman dekat.",
-            fake()->paragraph(4),
-            fake()->paragraph(3),
+            ...$this->fillerFor($title, 2),
         ]);
     }
 
@@ -166,9 +185,31 @@ class BookSeeder extends Seeder
     private function reviewFor(string $title): string
     {
         return implode("\n\n", [
-            fake()->paragraph(4),
+            ...$this->fillerFor($title, 1, offset: 2),
             "Kalau kamu cuma punya waktu buat satu buku bulan ini, \"{$title}\" pilihan yang aman.",
         ]);
+    }
+
+    /**
+     * Ambil paragraf pengisi deterministik berdasarkan judul.
+     *
+     * Offset dipakai supaya paragraf di ulasan tidak mengulang paragraf
+     * pertama di sinopsis untuk judul yang sama.
+     *
+     * @return array<int, string>
+     */
+    private function fillerFor(string $title, int $count, int $offset = 0): array
+    {
+        $seed = crc32($title);
+        $total = count(self::FILLER_PARAGRAPHS);
+
+        $paragraphs = [];
+
+        for ($index = 0; $index < $count; $index++) {
+            $paragraphs[] = self::FILLER_PARAGRAPHS[($seed + $offset + $index) % $total];
+        }
+
+        return $paragraphs;
     }
 
     /**
