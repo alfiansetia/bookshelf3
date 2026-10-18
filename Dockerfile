@@ -1,12 +1,11 @@
-# ---------- Stage 0: Frontend (Vue/Inertia via Vite) ----------
-FROM node:22-alpine AS frontend
-WORKDIR /src
-COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
-COPY . .
-RUN npm run build
-
-# ---------- Stage 1: PHP-FPM (Laravel) ----------
+# ---------- Stage 1: PHP-FPM (Laravel) + Node untuk build aset ----------
+#
+# Node sengaja ditempatkan di stage yang SAMA dengan PHP, bukan stage terpisah.
+# Alasannya: plugin Vite `@laravel/vite-plugin-wayfinder` menjalankan
+# `php artisan wayfinder:generate` pada hook `buildStart`. Stage Node-only
+# (mis. node:22-alpine) tidak punya PHP sehingga build selalu gagal dengan
+# "sh: php: not found" — sumber file `resources/js/actions|routes|wayfinder`
+# tidak pernah terbentuk.
 FROM php:8.4-fpm AS app
 
 # System deps + PHP extensions (Laravel, MySQL prod + sqlite lokal) + binary pendukung:
@@ -23,6 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install -j$(nproc) pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip intl opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Node + npm untuk membangun aset. Diambil dari varian `bookworm` supaya basis
+# glibc-nya sama dengan php:8.4-fpm (Debian 12) — varian `-alpine` (musl) tidak
+# kompatibel kalau disalin ke image berbasis Debian.
+COPY --from=node:22-bookworm-slim /usr/local /usr/local
+
 # Composer binary
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -35,15 +39,24 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --no-progress --no-scripts --prefer-dist --optimize-autoloader
 
+# Install dependency JS (layer-nya terpisah dari source agar cache tidak mudah batal)
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
 # Copy seluruh source
 COPY . .
 
-# Salin hasil vite build dari stage frontend (diabaikan bila tidak ada).
-COPY --from=frontend /src/public/build ./public/build
-
+# Autoload + manifest paket disiapkan sebelum build aset supaya `php artisan`
+# (dipanggil plugin Wayfinder) sudah bisa boot dengan vendor/ yang lengkap.
 RUN composer dump-autoload --optimize \
-    && php artisan package:discover --ansi \
-    && mkdir -p storage/framework/{sessions,views,cache} storage/logs storage/app/public bootstrap/cache database \
+    && php artisan package:discover --ansi
+
+# Build aset di sini — PHP sudah tersedia, jadi `wayfinder:generate` berhasil.
+# node_modules dihapus setelah build agar tidak membebani image runtime.
+RUN npm run build \
+    && rm -rf node_modules
+
+RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs storage/app/public bootstrap/cache database \
     && touch database/database.sqlite \
     && chown -R www-data:www-data storage bootstrap/cache database \
     && chmod -R 775 storage bootstrap/cache database
