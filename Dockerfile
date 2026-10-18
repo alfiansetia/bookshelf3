@@ -46,20 +46,39 @@ RUN npm ci --no-audit --no-fund
 # Copy seluruh source
 COPY . .
 
+# Direktori runtime WAJIB dibuat SEBELUM perintah artisan apa pun.
+#
+# `storage` dikecualikan dari build context (.dockerignore), sedangkan config
+# view memakai realpath(storage_path('framework/views')). Selama direktori itu
+# belum ada, realpath() mengembalikan false sehingga config('view.compiled')
+# bernilai false, dan BladeCompiler melempar:
+#   InvalidArgumentException: Please provide a valid cache path.
+#
+# Gejalanya di build aset: `wayfinder:generate` merender template Blade
+# (.blade.ts) sehingga gagal, Laravel mencetak exception itu ke STDOUT, dan
+# plugin Vite hanya melaporkan "Command failed" tanpa detail apa pun.
+RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs storage/app/public bootstrap/cache database \
+    && touch database/database.sqlite \
+    && chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R 775 storage bootstrap/cache database
+
 # Autoload + manifest paket disiapkan sebelum build aset supaya `php artisan`
 # (dipanggil plugin Wayfinder) sudah bisa boot dengan vendor/ yang lengkap.
 RUN composer dump-autoload --optimize \
     && php artisan package:discover --ansi
 
+# Generate tipe Wayfinder lebih dulu, sebagai step tersendiri.
+# Tujuannya supaya kalau generate gagal, pesan aslinya tampil di log build.
+# Kalau dijalankan langsung oleh plugin Vite, Laravel menulis exception ke
+# stdout dan plugin hanya melaporkan "Command failed" tanpa penyebabnya.
+# Perintah ini idempoten: plugin akan menjalankannya lagi (tanpa perubahan)
+# saat `npm run build`.
+RUN php artisan wayfinder:generate --with-form
+
 # Build aset di sini — PHP sudah tersedia, jadi `wayfinder:generate` berhasil.
 # node_modules dihapus setelah build agar tidak membebani image runtime.
 RUN npm run build \
     && rm -rf node_modules
-
-RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs storage/app/public bootstrap/cache database \
-    && touch database/database.sqlite \
-    && chown -R www-data:www-data storage bootstrap/cache database \
-    && chmod -R 775 storage bootstrap/cache database
 
 # Perbaiki permission volume mount + drop ke www-data untuk perintah artisan
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
