@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Actions\StoreUploadedImage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\User;
 use App\UploadedImageType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +37,11 @@ class ProfileController extends Controller
                 'min' => (int) config('bookshelf.username.min'),
                 'max' => (int) config('bookshelf.username.max'),
             ],
+            'usernameChange' => [
+                'can_change' => $user->canChangeUsername(),
+                'available_at' => $user->usernameChangeAvailableAt()?->toIso8601String(),
+                'cooldown_days' => (int) config('bookshelf.username.cooldown_days'),
+            ],
             'limits' => [
                 'tagline' => (int) config('bookshelf.limits.tagline'),
                 'bio' => (int) config('bookshelf.limits.bio'),
@@ -50,15 +56,15 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $attributes = $request->safe()->except('avatar');
-
-        if ($request->hasFile('avatar')) {
-            $this->imageStore->delete($user->avatar_path, UploadedImageType::Avatar);
-
-            $attributes['avatar_path'] = $this->imageStore->store($request->file('avatar'), UploadedImageType::Avatar);
-        }
+        $attributes = $request->safe()->except(['avatar', 'remove_avatar']);
 
         $user->fill($attributes);
+
+        if (filled($attributes['username'] ?? null) && $attributes['username'] !== $user->getOriginal('username')) {
+            $user->username_changed_at = now();
+        }
+
+        $this->syncAvatar($request, $user);
 
         $user->save();
 
@@ -85,5 +91,32 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    /**
+     * Simpan foto baru atau catat pilihan "tanpa foto" milik pengguna.
+     *
+     * Pilihan tanpa foto disimpan di `avatar_removed_at` supaya foto Google
+     * tidak dipasang ulang saat pengguna login kembali.
+     */
+    private function syncAvatar(ProfileUpdateRequest $request, User $user): void
+    {
+        if ($request->hasFile('avatar')) {
+            $path = $this->imageStore->store($request->file('avatar'), UploadedImageType::Avatar);
+
+            $this->imageStore->delete($user->avatar_path, UploadedImageType::Avatar);
+
+            $user->avatar_path = $path;
+            $user->avatar_removed_at = null;
+
+            return;
+        }
+
+        if ($request->boolean('remove_avatar') && filled($user->avatar_path)) {
+            $this->imageStore->delete($user->avatar_path, UploadedImageType::Avatar);
+
+            $user->avatar_path = null;
+            $user->avatar_removed_at = now();
+        }
     }
 }

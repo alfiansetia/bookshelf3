@@ -8,7 +8,7 @@
  * - Permintaan Inertia (XHR) dan area yang butuh login tidak pernah di-cache.
  */
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const STATIC_CACHE = `rak-buku-static-${VERSION}`;
 const PAGE_CACHE = `rak-buku-pages-${VERSION}`;
 const OFFLINE_URL = '/offline.html';

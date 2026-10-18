@@ -126,7 +126,9 @@ username rak, karena username itulah yang menjadi alamat publiknya.
 Foto profil Google otomatis diunduh dan disimpan saat pengguna belum punya
 avatar (lewat `app/Actions/ImportRemoteAvatar.php`), lalu diproses seperti
 avatar unggahan: diperkecil, dijadikan WebP, dan ditaruh di disk gambar yang
-sedang dipakai. Foto yang diunggah sendiri tidak pernah ditimpa foto Google.
+sedang dipakai. Foto yang diunggah sendiri tidak pernah ditimpa foto Google,
+dan pengguna yang menghapus fotonya (memilih "tanpa foto") tidak akan dipasangi
+ulang foto Google saat login kembali.
 
 > Saat mengubah `.env` di produksi, jalankan `php artisan config:clear` (atau
 > `config:cache`) agar nilai baru terpakai.
@@ -210,6 +212,8 @@ menjalankannya otomatis.
 ## Membagikan rak
 
 Alamat rak mengikuti username yang dipilih saat onboarding dan bisa diubah di
-**Pengaturan → Profil**. Visibilitas diatur di **Pengaturan → Gaya rak**; selama
-opsi "Tampilkan rak ke publik" dimatikan, `/username` hanya bisa dibuka oleh
-pemiliknya.
+**Pengaturan → Profil**, tetapi paling cepat sekali setiap 3 hari (lihat
+`cooldown_days` di `config/bookshelf.php`); sejak pilihan pertama saat
+onboarding, waktu terakhir ganti disimpan di kolom `users.username_changed_at`.
+Visibilitas diatur di **Pengaturan → Gaya rak**; selama opsi "Tampilkan rak ke
+publik" dimatikan, `/username` hanya bisa dibuka oleh pemiliknya.

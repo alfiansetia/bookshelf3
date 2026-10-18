@@ -45,13 +45,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | Username dipakai langsung sebagai alamat rak: example.com/username.
-    | Daftar `reserved` mencegah username menabrak route aplikasi.
+    | Daftar `reserved` mencegah username menabrak route aplikasi. Pemilik rak
+    | hanya boleh mengganti username sekali setiap `cooldown_days` hari.
     |
     */
 
     'username' => [
         'min' => 3,
         'max' => 30,
+        'cooldown_days' => 3,
         'regex' => '/^[a-z0-9](?:[a-z0-9._-]{1,28}[a-z0-9])$/',
         'reserved' => [
             'about', 'admin', 'administrator', 'api', 'app', 'appearance', 'assets',

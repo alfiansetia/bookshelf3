@@ -47,11 +47,11 @@ function entryNumber(index: number): string {
             </header>
 
             <!-- Desktop dua kolom, mobile satu kolom tersusun ke bawah. -->
-            <ol class="grid sm:grid-cols-2 sm:gap-x-10">
+            <ol class="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-10">
                 <li
                     v-for="(book, index) in row.books"
                     :key="book.id"
-                    class="border-b border-shelf-plank/70"
+                    class="min-w-0 border-b border-shelf-plank/70"
                 >
                     <component
                         :is="shelfBookHref(book, props.owner) ? Link : 'div'"

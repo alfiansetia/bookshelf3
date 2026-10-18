@@ -46,6 +46,7 @@ class UsernameController extends Controller
 
         $user->forceFill([
             'username' => $request->validated('username'),
+            'username_changed_at' => now(),
         ])->save();
 
         Inertia::flash('toast', [

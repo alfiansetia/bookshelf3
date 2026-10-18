@@ -37,11 +37,12 @@ class ImportRemoteAvatar
     public function __construct(private StoreUploadedImage $imageStore) {}
 
     /**
-     * Impor foto Google bila pengguna belum punya avatar.
+     * Impor foto Google bila pengguna belum punya foto dan belum memilih
+     * "tanpa foto".
      */
     public function handle(User $user, ?string $url): bool
     {
-        if (blank($url) || filled($user->avatar_path)) {
+        if (blank($url) || filled($user->avatar_path) || filled($user->avatar_removed_at)) {
             return false;
         }
 

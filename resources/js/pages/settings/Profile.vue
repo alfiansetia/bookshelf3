@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { formatDate } from '@/lib/format';
 import { edit, update } from '@/routes/profile';
 
 defineOptions({
@@ -31,6 +32,11 @@ const props = defineProps<{
     shelfUrl: string | null;
     availabilityUrl: string;
     usernameRules: { min: number; max: number };
+    usernameChange: {
+        can_change: boolean;
+        available_at: string | null;
+        cooldown_days: number;
+    };
     limits: { tagline: number; bio: number };
     avatarMaxKilobytes: number;
 }>();
@@ -46,7 +52,27 @@ const form = useForm({
     tagline: props.profile.tagline ?? '',
     bio: props.profile.bio ?? '',
     avatar: null as File | null,
+    remove_avatar: false,
 });
+
+const existingAvatar = ref<string | null>(props.profile.avatar_url);
+const usernameChangeDate = computed(() =>
+    formatDate(props.usernameChange.available_at),
+);
+
+function onAvatarChange(file: File | null): void {
+    form.avatar = file;
+
+    if (file !== null) {
+        form.remove_avatar = false;
+    }
+}
+
+function onAvatarRemove(): void {
+    form.avatar = null;
+    form.remove_avatar = true;
+    existingAvatar.value = null;
+}
 
 const checking = ref(false);
 const usernameStatus = ref<'idle' | 'available' | 'taken'>('idle');
@@ -122,14 +148,17 @@ function submit(): void {
 
         <form class="space-y-6" novalidate @submit.prevent="submit">
             <CoverUploadField
-                v-model="form.avatar"
+                :model-value="form.avatar"
                 aspect="avatar"
                 label="Foto profil"
-                :existing-url="props.profile.avatar_url"
+                :existing-url="existingAvatar"
                 :max-kilobytes="props.avatarMaxKilobytes"
                 hint="JPG, PNG, atau WEBP. Maksimal 2 MB."
+                @update:model-value="onAvatarChange"
+                @remove="onAvatarRemove"
             />
             <InputError :message="form.errors.avatar" />
+            <InputError :message="form.errors.remove_avatar" />
 
             <div class="grid gap-2">
                 <Label for="name">Nama tampilan</Label>
@@ -157,6 +186,7 @@ function submit(): void {
                         required
                         autocapitalize="none"
                         spellcheck="false"
+                        :disabled="!props.usernameChange.can_change"
                         :maxlength="props.usernameRules.max"
                         class="pr-10 pl-9"
                         placeholder="usernamekamu"
@@ -182,6 +212,15 @@ function submit(): void {
                 </div>
 
                 <p
+                    v-if="!props.usernameChange.can_change"
+                    class="text-xs text-muted-foreground"
+                >
+                    Username hanya bisa diganti sekali setiap
+                    {{ props.usernameChange.cooldown_days }} hari. Kamu bisa
+                    ganti lagi pada {{ usernameChangeDate }}.
+                </p>
+                <p
+                    v-else
                     :class="
                         cn(
                             'text-xs',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\ShelfTheme;
 use App\SocialPlatform;
+use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -21,8 +22,10 @@ use Illuminate\Support\Facades\Storage;
  * @property string $name
  * @property string $email
  * @property string|null $username
+ * @property CarbonImmutable|null $username_changed_at
  * @property string $google_id
  * @property string|null $avatar_path
+ * @property CarbonImmutable|null $avatar_removed_at
  * @property string|null $tagline
  * @property string|null $bio
  * @property ShelfTheme|null $theme
@@ -69,6 +72,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'username_changed_at' => 'datetime',
+            'avatar_removed_at' => 'datetime',
             'theme' => ShelfTheme::class,
             'is_public' => 'boolean',
         ];
@@ -114,6 +119,32 @@ class User extends Authenticatable
     public function hasUsername(): bool
     {
         return filled($this->username);
+    }
+
+    /**
+     * Apakah pengguna sudah boleh mengganti username lagi.
+     *
+     * Username dibatasi agar alamat rak tidak berpindah-pindah terlalu sering.
+     */
+    public function canChangeUsername(): bool
+    {
+        return $this->usernameChangeAvailableAt() === null;
+    }
+
+    /**
+     * Kapan username boleh diganti lagi (null bila sudah boleh sekarang).
+     */
+    public function usernameChangeAvailableAt(): ?CarbonImmutable
+    {
+        if ($this->username_changed_at === null) {
+            return null;
+        }
+
+        $availableAt = $this->username_changed_at->addDays(
+            (int) config('bookshelf.username.cooldown_days'),
+        );
+
+        return $availableAt->isFuture() ? $availableAt : null;
     }
 
     /**

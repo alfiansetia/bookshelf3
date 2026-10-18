@@ -25,6 +25,7 @@ trait ProfileValidationRules
             'username' => $this->usernameRules($userId),
             'tagline' => ['nullable', 'string', 'max:'.$limits['tagline']],
             'bio' => ['nullable', 'string', 'max:'.$limits['bio']],
+            'remove_avatar' => ['boolean'],
             'avatar' => [
                 'nullable',
                 'file',

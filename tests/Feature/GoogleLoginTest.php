@@ -155,6 +155,33 @@ it('tidak menimpa avatar yang sudah dipasang pengguna', function () {
     Http::assertNothingSent();
 });
 
+it('tidak memasang ulang foto Google setelah pengguna memilih tanpa foto', function () {
+    Storage::fake('public');
+    Http::fake();
+
+    $user = User::factory()->create([
+        'email' => 'tanpa-foto@example.com',
+        'username' => 'tanpa-foto',
+        'google_id' => '123321123',
+        'avatar_path' => null,
+        'avatar_removed_at' => now(),
+    ]);
+
+    Socialite::fake('google', SocialiteUser::fake([
+        'id' => '123321123',
+        'name' => 'Tanpa Foto',
+        'email' => 'tanpa-foto@example.com',
+        'avatar' => 'https://lh3.googleusercontent.com/a/xyz=s96-c',
+    ]));
+
+    $this->get(route('auth.google.callback'))
+        ->assertRedirect(route('dashboard'));
+
+    expect($user->refresh()->avatar_path)->toBeNull();
+
+    Http::assertNothingSent();
+});
+
 it('mengabaikan foto Google yang bukan gambar', function () {
     Storage::fake('public');
 
