@@ -5,6 +5,7 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Inertia\ExceptionResponse;
 use Inertia\Inertia;
@@ -70,5 +71,12 @@ class AppServiceProvider extends ServiceProvider
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
         );
+
+        // Jaring pengaman terhadap mixed content: bila header X-Forwarded-Proto
+        // tidak sampai ke aplikasi (mis. konfigurasi proxy berubah), URL yang
+        // dihasilkan tetap https di produksi.
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
     }
 }
