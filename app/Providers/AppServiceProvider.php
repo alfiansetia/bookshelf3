@@ -72,10 +72,13 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        // Jaring pengaman terhadap mixed content: bila header X-Forwarded-Proto
-        // tidak sampai ke aplikasi (mis. konfigurasi proxy berubah), URL yang
-        // dihasilkan tetap https di produksi.
-        if (app()->isProduction()) {
+         // Paksa https bila akses berjalan di atas https (langsung maupun
+        // via X-Forwarded-Proto dari proxy) atau APP_URL memakai https.
+        // Mencegah mixed content: semua url()/route()/asset() jadi https.
+        $request = $this->app['request'] ?? null;
+        if (($request && $request->secure())
+            || ($request && $request->header('X-Forwarded-Proto') === 'https')
+            || str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
     }
