@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { LayoutGrid, Library, Menu, Sprout } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -100,6 +101,8 @@ const navItems: NavItem[] = [
                     </Button>
                 </template>
 
+                <ThemeToggle size="sm" />
+
                 <Sheet v-model:open="open">
                     <SheetTrigger as-child>
                         <Button
@@ -164,6 +167,17 @@ const navItems: NavItem[] = [
                                 </Link>
                             </template>
                         </nav>
+
+                        <div
+                            class="mt-6 flex items-center justify-between rounded-lg border border-border/70 px-3 py-2"
+                        >
+                            <span
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Tema
+                            </span>
+                            <ThemeToggle size="sm" />
+                        </div>
                     </SheetContent>
                 </Sheet>
             </div>

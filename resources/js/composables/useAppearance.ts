@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue';
 import { computed, onMounted, ref } from 'vue';
-import { allowsPreferences } from '@/lib/cookieConsent';
+import { CONSENT_CHANGE_EVENT, allowsPreferences } from '@/lib/cookieConsent';
 import type { Appearance, ResolvedAppearance } from '@/types';
 
 export type { Appearance, ResolvedAppearance };
@@ -10,6 +10,8 @@ export type UseAppearanceReturn = {
     resolvedAppearance: ComputedRef<ResolvedAppearance>;
     updateAppearance: (value: Appearance) => void;
 };
+
+const appearance = ref<Appearance>('system');
 
 export function updateTheme(value: Appearance): void {
     if (typeof window === 'undefined') {
@@ -98,9 +100,23 @@ export function initializeTheme(): void {
 
     // Set up system theme change listener...
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+
+    // Tema yang dipilih sebelum cookie preferensi disetujui baru disimpan
+    // setelah pengguna memberi izin.
+    window.addEventListener(CONSENT_CHANGE_EVENT, () => {
+        persistAppearancePreference(appearance.value);
+    });
 }
 
-const appearance = ref<Appearance>('system');
+/** Simpan tema terpilih, hanya bila cookie preferensi diizinkan. */
+function persistAppearancePreference(value: Appearance): void {
+    if (!allowsPreferences()) {
+        return;
+    }
+
+    localStorage.setItem('appearance', value);
+    setCookie('appearance', value);
+}
 
 export function useAppearance(): UseAppearanceReturn {
     onMounted(() => {
@@ -123,13 +139,7 @@ export function useAppearance(): UseAppearanceReturn {
 
     function updateAppearance(value: Appearance) {
         appearance.value = value;
-
-        // Cookie preferensi hanya disimpan bila pengguna menyetujuinya...
-        if (allowsPreferences()) {
-            localStorage.setItem('appearance', value);
-            setCookie('appearance', value);
-        }
-
+        persistAppearancePreference(value);
         updateTheme(value);
     }
 
