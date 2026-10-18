@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT || 22 }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           # NOTE: input `script_stop` sudah DIHAPUS di appleboy/ssh-action v1.2.x.
           # Penggantinya: `set -e` di awal script di bawah (per README-nya).
           script: |
