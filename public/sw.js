@@ -8,7 +8,7 @@
  * - Permintaan Inertia (XHR) dan area yang butuh login tidak pernah di-cache.
  */
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const STATIC_CACHE = `rak-buku-static-${VERSION}`;
 const PAGE_CACHE = `rak-buku-pages-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -24,7 +24,14 @@ const PRECACHE_URLS = [
 ];
 
 /** Area yang butuh login dan tidak boleh disimpan di cache. */
-const PRIVATE_PREFIXES = ['/dashboard', '/books', '/settings', '/onboarding'];
+const PRIVATE_PREFIXES = [
+    '/admin',
+    '/auth',
+    '/dashboard',
+    '/books',
+    '/settings',
+    '/onboarding',
+];
 
 const STATIC_PATTERN =
     /\.(?:css|js|mjs|woff2?|ttf|otf|png|jpe?g|svg|webp|avif|ico)$/;
@@ -36,7 +43,9 @@ self.addEventListener('install', (event) => {
 
             await Promise.all(
                 PRECACHE_URLS.map((url) =>
-                    cache.add(new Request(url, { cache: 'reload' })).catch(() => {}),
+                    cache
+                        .add(new Request(url, { cache: 'reload' }))
+                        .catch(() => {}),
                 ),
             );
 
@@ -131,32 +140,56 @@ async function staleWhileRevalidate(request, cacheName, maxEntries) {
     return Response.error();
 }
 
-async function handleNavigation(request) {
-    try {
-        const response = await fetch(request);
+async function offlineFallback(request) {
+    const cachedPage = await caches.match(request, { cacheName: PAGE_CACHE });
 
-        if (response.ok && isCacheablePath(new URL(request.url).pathname)) {
-            const cache = await caches.open(PAGE_CACHE);
+    if (cachedPage) {
+        return cachedPage;
+    }
 
-            await cache.put(request, response.clone());
-            void trimCache(PAGE_CACHE, MAX_PAGE_ENTRIES);
-        }
+    const offline = await caches.match(OFFLINE_URL);
 
-        return response;
-    } catch (error) {
-        const cached = await caches.match(request, { cacheName: PAGE_CACHE });
-
-        if (cached) {
-            return cached;
-        }
-
-        const offline = await cacheFirst(
-            new Request(OFFLINE_URL, { cache: 'reload' }),
-            STATIC_CACHE,
-        );
-
+    if (offline) {
         return offline;
     }
+
+    return new Response(
+        '<!doctype html><html lang="id"><meta charset="utf-8"><title>Sedang offline</title><p>Kamu sedang offline. Periksa koneksimu lalu muat ulang.</p></html>',
+        {
+            status: 503,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        },
+    );
+}
+
+async function handleNavigation(event) {
+    const { request } = event;
+    let response;
+
+    try {
+        response = await fetch(request);
+    } catch {
+        return offlineFallback(request);
+    }
+
+    if (response.ok && isCacheablePath(new URL(request.url).pathname)) {
+        // Kegagalan menyimpan cache tidak boleh mengubah navigasi yang sudah
+        // berhasil dari jaringan menjadi halaman offline.
+        try {
+            const cache = await caches.open(PAGE_CACHE);
+
+            event.waitUntil(
+                cache
+                    .put(request, response.clone())
+                    .then(() => trimCache(PAGE_CACHE, MAX_PAGE_ENTRIES))
+                    .catch(() => {}),
+            );
+        } catch {
+            // Cache tidak tersedia; tetap tampilkan respons jaringan.
+        }
+    }
+
+    return response;
 }
 
 self.addEventListener('fetch', (event) => {
@@ -177,13 +210,27 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Biarkan Inertia mengambil data langsung dari jaringan.
+    // Permintaan Inertia (XHR) diambil langsung dari jaringan. Saat offline,
+    // balas 409 + X-Inertia-Location agar Inertia melakukan kunjungan penuh;
+    // request navigasi itu kemudian dilayani dari cache atau halaman offline.
     if (request.headers.get('X-Inertia')) {
+        event.respondWith(
+            fetch(request).catch(
+                () =>
+                    new Response(null, {
+                        status: 409,
+                        headers: {
+                            'X-Inertia-Location': request.url,
+                        },
+                    }),
+            ),
+        );
+
         return;
     }
 
     if (request.mode === 'navigate') {
-        event.respondWith(handleNavigation(request));
+        event.respondWith(handleNavigation(event));
 
         return;
     }

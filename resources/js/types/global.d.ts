@@ -2,6 +2,11 @@ import type { Directive } from 'vue';
 import type { Auth } from '@/types/auth';
 import type { SeoDefaults } from '@/types/ui';
 
+declare global {
+    /** Diisi oleh `define` di vite.config.ts dari hash public/sw.js. */
+    const __SW_VERSION__: string;
+}
+
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
     interface ImportMetaEnv {

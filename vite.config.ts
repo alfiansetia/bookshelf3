@@ -4,9 +4,22 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
+// Versi service worker ikut berubah setiap public/sw.js berubah. Dipakai untuk
+// cache-busting URL registrasi karena CDN (Cloudflare) dan browser bisa
+// menyimpan sw.js lama sampai beberapa jam.
+const serviceWorkerVersion = createHash('sha256')
+    .update(readFileSync(new URL('./public/sw.js', import.meta.url)))
+    .digest('hex')
+    .slice(0, 10);
+
 export default defineConfig({
+    define: {
+        __SW_VERSION__: JSON.stringify(serviceWorkerVersion),
+    },
     plugins: lazyPlugins(() => [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],

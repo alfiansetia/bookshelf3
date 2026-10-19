@@ -46,10 +46,23 @@ initializeTheme();
 // This will listen for flash toast data from the server...
 initializeFlashToast();
 
-// Daftarkan service worker PWA hanya pada build produksi. Kegagalan di sini
-// tidak boleh mengganggu jalannya aplikasi.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        void navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
+// Daftarkan service worker PWA. Registrasi tetap jalan di dev supaya PWA bisa
+// diuji di localhost; strategi cache di sw.js hanya menyentuh aset same-origin
+// sehingga tidak mengganggu HMR Vite. Kegagalan di sini tidak boleh mengganggu
+// jalannya aplikasi.
+if ('serviceWorker' in navigator) {
+    const registerServiceWorker = () => {
+        void navigator.serviceWorker
+            .register(`/sw.js?v=${__SW_VERSION__}`, {
+                scope: '/',
+                updateViaCache: 'none',
+            })
+            .catch(() => {});
+    };
+
+    if (document.readyState === 'complete') {
+        registerServiceWorker();
+    } else {
+        window.addEventListener('load', registerServiceWorker, { once: true });
+    }
 }
