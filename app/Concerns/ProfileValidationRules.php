@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use App\Models\User;
 use App\Validation\NoProfanity;
+use App\Validation\UsernameNotRecentlyDeleted;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -85,6 +86,7 @@ trait ProfileValidationRules
             'regex:'.$username['regex'],
             Rule::notIn($username['reserved']),
             new NoProfanity(matchSubstring: true),
+            new UsernameNotRecentlyDeleted,
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),

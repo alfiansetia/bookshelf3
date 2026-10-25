@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\ImportRemoteAvatar;
 use App\Http\Controllers\Controller;
+use App\Models\AccountDeletion;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,10 @@ class GoogleAuthController extends Controller
             return to_route('login');
         }
 
+        if ($rejection = $this->rejectRecentlyDeleted($googleUser)) {
+            return $rejection;
+        }
+
         $user = $this->findOrCreateUser($googleUser);
 
         if ($user->isBlocked()) {
@@ -80,6 +85,40 @@ class GoogleAuthController extends Controller
         ]);
 
         return to_route('dashboard');
+    }
+
+    /**
+     * Tolak login ulang selama masa tenggang hapus akun masih berlaku.
+     *
+     * Mengembalikan RedirectResponse bila ditolak (dan menghapus tombstone
+     * yang sudah kadaluarsa supaya pendaftaran bisa jalan lagi), atau null
+     * bila login boleh lanjut.
+     */
+    private function rejectRecentlyDeleted(SocialiteUser $googleUser): ?RedirectResponse
+    {
+        $tombstone = AccountDeletion::query()
+            ->where('google_id', (string) $googleUser->getId())
+            ->first();
+
+        if ($tombstone === null) {
+            return null;
+        }
+
+        if ($tombstone->isActive()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => sprintf(
+                    'Akun Google ini baru saja dihapus. Kamu bisa daftar lagi setelah %s.',
+                    $tombstone->availableAt()?->translatedFormat('j F Y') ?? '-',
+                ),
+            ]);
+
+            return to_route('login');
+        }
+
+        $tombstone->delete();
+
+        return null;
     }
 
     /**

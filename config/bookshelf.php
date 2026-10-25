@@ -135,6 +135,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Hapus Akun & Daftar Ulang
+    |--------------------------------------------------------------------------
+    |
+    | Pengguna boleh menghapus akunnya sendiri, tetapi google_id, email, dan
+    | username terakhir dicatat di `account_deletions` sebagai tombstone.
+    | Selama `cooldown_days` sejak penghapusan, google_id itu ditolak daftar
+    | ulang dan username bekasnya tidak bisa dipakai siapa pun supaya tidak
+    | disalahgunakan untuk reset blokir, reset batas buku, atau pencatutan
+    | username. Setelah lewat, tombstone dihapus dan pendaftaran dibuka lagi.
+    |
+    */
+
+    'deletion' => [
+        'cooldown_days' => 30,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Filter Kata Kasar
     |--------------------------------------------------------------------------
     |

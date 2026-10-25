@@ -5,6 +5,7 @@ namespace App\Validation;
 use App\Services\ProfanityScanner;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 /**
  * Menolak input yang mengandung kata kasar.
@@ -23,7 +24,7 @@ class NoProfanity implements ValidationRule
     ) {}
 
     /**
-     * @param  Closure(string): void  $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

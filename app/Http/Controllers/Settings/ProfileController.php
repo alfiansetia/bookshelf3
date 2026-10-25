@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Actions\StoreUploadedImage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\AccountDeletion;
 use App\Models\User;
 use App\UploadedImageType;
 use Illuminate\Http\RedirectResponse;
@@ -77,11 +78,24 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's profile.
+     * Hapus akun pengguna beserta seluruh bukunya.
+     *
+     * google_id, email, dan username terakhir dicatat sebagai tombstone di
+     * `account_deletions` supaya akun tidak bisa langsung didaftarkan ulang
+     * untuk menghindari moderasi (lihat `config('bookshelf.deletion')`).
      */
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
+
+        AccountDeletion::updateOrCreate(
+            ['google_id' => $user->google_id],
+            [
+                'email' => $user->email,
+                'username' => $user->username,
+                'deleted_at' => now(),
+            ],
+        );
 
         Auth::logout();
 

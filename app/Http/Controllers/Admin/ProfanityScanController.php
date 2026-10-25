@@ -84,9 +84,9 @@ class ProfanityScanController extends Controller
                     'field_label' => $this->fieldLabel($field),
                     'snippet' => $this->scanner->snippet($value),
                     'matched' => $matched,
-                    'owner_name' => $book->user?->name,
-                    'owner_username' => $book->user?->username,
-                    'shelf_url' => filled($book->user?->username) ? route('shelf.book.show', [$book->user->username, $book->slug]) : null,
+                    'owner_name' => $book->user->name,
+                    'owner_username' => $book->user->username,
+                    'shelf_url' => filled($book->user->username) ? route('shelf.book.show', [$book->user->username, $book->slug]) : null,
                 ];
             }
         }
