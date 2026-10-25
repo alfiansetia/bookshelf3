@@ -37,3 +37,36 @@ export type RoleOption = {
     value: UserRole;
     label: string;
 };
+
+export type ProfanityScanSummary = {
+    users_scanned: number;
+    books_scanned: number;
+    user_hits: number;
+    book_hits: number;
+    words_count: number;
+};
+
+export type ProfanityUserFinding = {
+    id: number;
+    name: string;
+    username: string | null;
+    email: string;
+    is_blocked: boolean;
+    field: string;
+    field_label: string;
+    snippet: string;
+    matched: string[];
+    shelf_url: string | null;
+};
+
+export type ProfanityBookFinding = {
+    id: number;
+    title: string;
+    field: string;
+    field_label: string;
+    snippet: string;
+    matched: string[];
+    owner_name: string | null;
+    owner_username: string | null;
+    shelf_url: string | null;
+};

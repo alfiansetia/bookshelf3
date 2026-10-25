@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\SocialPlatform;
+use App\Validation\NoProfanity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -48,7 +49,7 @@ class UpdateSocialLinksRequest extends FormRequest
 
         foreach (SocialPlatform::cases() as $platform) {
             $rules[$platform->column()] = $platform->isUsernameOnly()
-                ? ['nullable', 'string', 'max:'.$platform->maxLength(), 'regex:/^[A-Za-z0-9._-]+$/']
+                ? ['nullable', 'string', 'max:'.$platform->maxLength(), 'regex:/^[A-Za-z0-9._-]+$/', new NoProfanity(matchSubstring: true)]
                 : ['nullable', 'string', 'max:'.$platform->maxLength(), 'url'];
         }
 

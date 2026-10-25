@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Models\User;
+use App\Validation\NoProfanity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -23,8 +24,8 @@ trait ProfileValidationRules
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
             'username' => $this->usernameRules($userId),
-            'tagline' => ['nullable', 'string', 'max:'.$limits['tagline']],
-            'bio' => ['nullable', 'string', 'max:'.$limits['bio']],
+            'tagline' => ['nullable', 'string', 'max:'.$limits['tagline'], new NoProfanity],
+            'bio' => ['nullable', 'string', 'max:'.$limits['bio'], new NoProfanity],
             'remove_avatar' => ['boolean'],
             'avatar' => [
                 'nullable',
@@ -46,7 +47,7 @@ trait ProfileValidationRules
      */
     protected function nameRules(): array
     {
-        return ['required', 'string', 'max:255'];
+        return ['required', 'string', 'max:255', new NoProfanity];
     }
 
     /**
@@ -83,6 +84,7 @@ trait ProfileValidationRules
             'max:'.$username['max'],
             'regex:'.$username['regex'],
             Rule::notIn($username['reserved']),
+            new NoProfanity(matchSubstring: true),
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BlockUserController;
+use App\Http\Controllers\Admin\ProfanityScanController;
 use App\Http\Controllers\Admin\UnblockUserController;
 use App\Http\Controllers\Admin\UpdateUserRoleController;
 use App\Http\Controllers\Admin\UserController;
@@ -21,6 +22,8 @@ Route::middleware(['auth', 'not.blocked', 'admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('users', [UserController::class, 'index'])->name('users.index');
+
+        Route::get('profanity', ProfanityScanController::class)->name('profanity.index');
 
         Route::patch('users/{user}/block', BlockUserController::class)->name('users.block');
         Route::delete('users/{user}/block', UnblockUserController::class)->name('users.unblock');

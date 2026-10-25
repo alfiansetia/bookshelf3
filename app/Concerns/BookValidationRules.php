@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\BookStatus;
+use App\Validation\NoProfanity;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
@@ -21,15 +22,15 @@ trait BookValidationRules
         $languages = array_keys(config('bookshelf.languages'));
 
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'author' => ['required', 'string', 'max:255'],
-            'publisher' => ['nullable', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255', new NoProfanity],
+            'author' => ['required', 'string', 'max:255', new NoProfanity],
+            'publisher' => ['nullable', 'string', 'max:255', new NoProfanity],
             'published_year' => ['nullable', 'integer', 'min:1000', 'max:'.(date('Y') + 1)],
             'language' => ['required', 'string', Rule::in($languages)],
             'status' => ['required', Rule::enum(BookStatus::class)],
             'rating' => ['nullable', 'integer', 'min:'.$rating['min'], 'max:'.$rating['max']],
-            'synopsis' => ['nullable', 'string', 'max:'.$limits['synopsis']],
-            'review' => ['nullable', 'string', 'max:'.$limits['review']],
+            'synopsis' => ['nullable', 'string', 'max:'.$limits['synopsis'], new NoProfanity],
+            'review' => ['nullable', 'string', 'max:'.$limits['review'], new NoProfanity],
             'total_pages' => ['nullable', 'integer', 'min:1', 'max:20000'],
             'started_at' => ['nullable', 'date', 'before_or_equal:today'],
             'finished_at' => ['nullable', 'date', 'after_or_equal:started_at', 'before_or_equal:today'],

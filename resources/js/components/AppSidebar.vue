@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Compass, LayoutGrid, Library, Plus, ShieldCheck } from '@lucide/vue';
+import {
+    Compass,
+    LayoutGrid,
+    Library,
+    Plus,
+    ScanSearch,
+    ShieldCheck,
+} from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -16,6 +23,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard, explore } from '@/routes';
+import { index as profanityIndex } from '@/routes/admin/profanity';
 import { index as adminUsersIndex } from '@/routes/admin/users';
 import { create, index as booksIndex } from '@/routes/books';
 import type { NavItem } from '@/types';
@@ -52,6 +60,11 @@ const mainNavItems = computed<NavItem[]>(() => {
             title: 'Kelola pengguna',
             href: adminUsersIndex(),
             icon: ShieldCheck,
+        });
+        items.push({
+            title: 'Scan kata kasar',
+            href: profanityIndex(),
+            icon: ScanSearch,
         });
     }
 

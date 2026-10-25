@@ -6,7 +6,7 @@
 # (mis. node:22-alpine) tidak punya PHP sehingga build selalu gagal dengan
 # "sh: php: not found" — sumber file `resources/js/actions|routes|wayfinder`
 # tidak pernah terbentuk.
-FROM php:8.4-fpm AS app
+FROM php:8.4.27-fpm AS app
 
 # System deps + PHP extensions (Laravel, MySQL prod + sqlite lokal) + binary pendukung:
 # - default-mysql-client : client mysql untuk koneksi manual ke shared MySQL
@@ -35,7 +35,9 @@ COPY --from=node:22-bookworm-slim /usr/local /usr/local
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Limit upload PHP diselaraskan dengan nginx (lihat docker/php/uploads.ini)
+# Mitigasi CVE-2026-115560 disalin sebagai conf terpisah (lihat docker/php/security.ini)
 COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+COPY docker/php/security.ini /usr/local/etc/php/conf.d/security.ini
 
 WORKDIR /var/www/html
 

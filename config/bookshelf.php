@@ -133,6 +133,49 @@ return [
         'reason_max' => 500,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Filter Kata Kasar
+    |--------------------------------------------------------------------------
+    |
+    | Daftar kata yang ditolak oleh `App\Validation\NoProfanity` pada username,
+    | profil, tautan sosial, dan konten buku. Semua kata ditulis huruf kecil;
+    | pencocokan tidak peka huruf besar/kecil. Tambahkan kata baru di sini
+    | tanpa mengubah kode validasi.
+    |
+    */
+
+    'profanity' => [
+        'words' => [
+            // Indonesia — makian dan umpatan umum
+            'anjing', 'anjir', 'anjay', 'asu', 'babi', 'bangsat',
+            'bajingan', 'brengsek', 'tolol', 'goblok', 'bego', 'dungu',
+            'dongo', 'idiot', 'kontol', 'memek', 'ngentot', 'jancuk',
+            'cuk', 'keparat', 'laknat', 'sialan', 'kampret', 'bedebah',
+            'bejat', 'biadab', 'jahanam', 'kunyuk', 'monyet',
+            'lonte', 'pelacur', 'perek', 'setan', 'iblis',
+            // Indonesia — vulgar/seksual
+            'jembut', 'tempik', 'itil', 'pentil', 'toket', 'tetek',
+            'nenen', 'pepek', 'puki', 'titit', 'pantat', 'dubur',
+            'tai', 'taik', 'coli', 'colmek', 'sange', 'horny',
+            'desah', 'orgasme', 'masturbasi', 'porno', 'bokep',
+            // Inggris — makian umum
+            'fuck', 'fucking', 'fucker', 'motherfucker', 'shit',
+            'bullshit', 'horseshit', 'dipshit', 'dumbass', 'jackass',
+            'asshole', 'bitch', 'bastard', 'moron', 'imbecile',
+            'retard', 'retarded', 'douche', 'douchebag', 'scumbag',
+            'cunt', 'fag', 'faggot', 'dick', 'cock', 'pussy',
+            'whore', 'slut', 'slutty',
+            'nigga', 'nigger', 'kike', 'chink', 'gook', 'spic',
+            // Inggris — vulgar/seksual
+            'porn', 'hentai', 'blowjob', 'handjob', 'anal', 'orgasm',
+            'masturbate', 'masturbation', 'dildo', 'vibrator', 'clit',
+            'boobs', 'tits', 'titties', 'nipple', 'vagina', 'penis',
+            'cum', 'orgy', 'escort', 'prostitute', 'rape', 'rapist',
+            'pedophile', 'incest', 'bestiality', 'sex',
+        ],
+    ],
+
     'rating' => [
         'min' => 1,
         'max' => 5,
