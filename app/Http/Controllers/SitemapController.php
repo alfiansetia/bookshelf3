@@ -47,6 +47,21 @@ class SitemapController extends Controller
                 'changefreq' => 'yearly',
                 'priority' => '0.2',
             ],
+            [
+                'loc' => route('legal.privacy'),
+                'changefreq' => 'yearly',
+                'priority' => '0.2',
+            ],
+            [
+                'loc' => route('legal.contact'),
+                'changefreq' => 'yearly',
+                'priority' => '0.3',
+            ],
+            [
+                'loc' => route('legal.faq'),
+                'changefreq' => 'yearly',
+                'priority' => '0.3',
+            ],
         ];
 
         foreach ($users as $user) {

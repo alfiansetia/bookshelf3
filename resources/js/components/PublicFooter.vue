@@ -4,7 +4,7 @@ import { Heart, Library } from '@lucide/vue';
 import { openCookieConsent } from '@/lib/cookieConsent';
 import { explore, home, login, register } from '@/routes';
 import { index as booksIndex } from '@/routes/books';
-import { cookie as cookiePolicy } from '@/routes/legal';
+import { contact, cookie as cookiePolicy, faq, privacy } from '@/routes/legal';
 
 const page = usePage();
 const year = new Date().getFullYear();
@@ -27,7 +27,12 @@ const columns = [
     },
     {
         title: 'Legal',
-        links: [{ label: 'Kebijakan cookie', href: cookiePolicy() }],
+        links: [
+            { label: 'Kebijakan privasi', href: privacy() },
+            { label: 'Kebijakan cookie', href: cookiePolicy() },
+            { label: 'Kontak', href: contact() },
+            { label: 'FAQ', href: faq() },
+        ],
     },
 ];
 </script>

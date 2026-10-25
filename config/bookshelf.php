@@ -58,10 +58,10 @@ return [
         'reserved' => [
             'about', 'admin', 'administrator', 'api', 'app', 'appearance', 'assets',
             'auth', 'blog', 'books', 'build', 'buku', 'cdn', 'cookie', 'css',
-            'dashboard', 'docs', 'email', 'explore', 'favicon', 'favicon.ico',
+            'dashboard', 'docs', 'email', 'explore', 'faq', 'favicon', 'favicon.ico',
             'feedback', 'google',
             'health', 'help', 'home', 'horizon', 'icons', 'images', 'img', 'jelajah',
-            'js', 'katalog', 'kebijakan-cookie', 'legal', 'livewire', 'login',
+            'js', 'katalog', 'kebijakan-cookie', 'kebijakan-privasi', 'kontak', 'legal', 'livewire', 'login',
             'logout', 'mail', 'manifest', 'manifest.webmanifest', 'me', 'new',
             'nova', 'oauth', 'offline',
             'onboarding', 'premium', 'privacy', 'profile', 'profiles', 'pulse', 'rak',

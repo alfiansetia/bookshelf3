@@ -3,12 +3,15 @@
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExploreController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Onboarding\UsernameAvailabilityController;
 use App\Http\Controllers\Onboarding\UsernameController;
+use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\Shelf\PublicBookController;
 use App\Http\Controllers\Shelf\PublicProfileController;
 use App\Http\Controllers\SitemapController;
@@ -25,6 +28,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', LandingController::class)->name('home');
 Route::get('jelajah', ExploreController::class)->name('explore');
 Route::get('kebijakan-cookie', CookiePolicyController::class)->name('legal.cookie');
+Route::get('kebijakan-privasi', PrivacyPolicyController::class)->name('legal.privacy');
+Route::get('kontak', ContactController::class)->name('legal.contact');
+Route::get('faq', FaqController::class)->name('legal.faq');
 
 /*
 |--------------------------------------------------------------------------
