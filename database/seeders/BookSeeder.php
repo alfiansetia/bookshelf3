@@ -162,10 +162,15 @@ class BookSeeder extends Seeder
 
     /**
      * Rating deterministik supaya data demo selalu masuk akal.
+     * Sesekali setengah bintang supaya contohnya terlihat.
      */
-    private function ratingFor(string $title): int
+    private function ratingFor(string $title): float
     {
-        return 3 + (crc32($title) % 3);
+        $base = 3 + (crc32($title) % 3);
+
+        $half = (crc32(strrev($title)) % 2) === 0 ? 0.5 : 0.0;
+
+        return min(5, $base + $half);
     }
 
     /**

@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $published_year
  * @property string $language
  * @property BookStatus $status
- * @property int|null $rating
+ * @property float|null $rating
  * @property string|null $synopsis
  * @property string|null $review
  * @property string|null $cover_path
@@ -66,7 +66,7 @@ class Book extends Model
     {
         return [
             'status' => BookStatus::class,
-            'rating' => 'integer',
+            'rating' => 'float',
             'published_year' => 'integer',
             'total_pages' => 'integer',
             'position' => 'integer',

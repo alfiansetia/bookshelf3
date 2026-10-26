@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { Heart, Star } from '@lucide/vue';
 import BookCover from '@/components/bookshelf/BookCover.vue';
+import { formatNumber } from '@/lib/format';
 import { spotlightActive, spotlightDim } from '@/lib/shelfFilter';
 import { shelfBookHref } from '@/lib/shelfLinks';
 import type { BookStatus, ShelfBook } from '@/types';
@@ -74,7 +75,7 @@ const props = withDefaults(
                             class="flex items-center gap-1 text-shelf-glow"
                         >
                             <Star class="size-3 fill-current" />
-                            {{ book.rating }}.0
+                            {{ formatNumber(book.rating) }}
                         </span>
                         <span v-if="book.published_year">
                             {{ book.published_year }}
@@ -138,7 +139,7 @@ const props = withDefaults(
                         class="mt-1 flex items-center gap-1 font-mono text-[9px] text-shelf-glow"
                     >
                         <Star class="size-2.5 fill-current" />
-                        {{ book.rating }}
+                        {{ formatNumber(book.rating) }}
                     </span>
                 </span>
 

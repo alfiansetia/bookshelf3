@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight, Heart, Star } from '@lucide/vue';
 import BookCover from '@/components/bookshelf/BookCover.vue';
+import { formatNumber } from '@/lib/format';
 import { shelfBookHref } from '@/lib/shelfLinks';
 import { spotlightActive, spotlightDim } from '@/lib/shelfFilter';
 import { useDragScroll } from '@/composables/useDragScroll';
@@ -148,7 +149,7 @@ function reelIndex(index: number): string {
                                 class="inline-flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 font-semibold text-shelf-accent"
                             >
                                 <Star class="size-3 fill-current" />
-                                {{ book.rating }}.0
+                                {{ formatNumber(book.rating) }}
                             </span>
                             <span
                                 v-if="book.published_year"

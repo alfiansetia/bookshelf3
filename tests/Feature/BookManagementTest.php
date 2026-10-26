@@ -43,7 +43,7 @@ it('menyimpan buku baru beserta slug-nya', function () {
         ->and($book->slug)->toBe('bumi-manusia')
         ->and($book->language)->toBe('id')
         ->and($book->status->value)->toBe('finished')
-        ->and($book->rating)->toBe(5)
+        ->and((float) $book->rating)->toBe(5.0)
         ->and($book->is_favorite)->toBeTrue();
 });
 
@@ -117,7 +117,7 @@ it('memperbarui buku milik sendiri', function () {
     expect($book->title)->toBe('Judul Baru')
         ->and($book->slug)->toBe('judul-baru')
         ->and($book->status->value)->toBe('finished')
-        ->and($book->rating)->toBe(4);
+        ->and((float) $book->rating)->toBe(4.0);
 });
 
 it('melarang pengguna mengubah atau menghapus buku milik orang lain', function () {

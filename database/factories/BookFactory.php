@@ -31,7 +31,7 @@ class BookFactory extends Factory
             'published_year' => $publishedYear,
             'language' => fake()->randomElement(array_keys(config('bookshelf.languages'))),
             'status' => $status->value,
-            'rating' => $status === BookStatus::Finished ? fake()->numberBetween(1, 5) : null,
+            'rating' => $status === BookStatus::Finished ? fake()->randomElement([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]) : null,
             'synopsis' => fake()->paragraphs(2, true),
             'review' => fake()->optional(0.6)->paragraphs(2, true),
             'cover_path' => null,
@@ -63,7 +63,7 @@ class BookFactory extends Factory
 
             return [
                 'status' => BookStatus::Finished->value,
-                'rating' => fake()->numberBetween(1, 5),
+                'rating' => fake()->randomElement([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]),
                 'started_at' => $finishedAt->modify('-'.fake()->numberBetween(5, 40).' days'),
                 'finished_at' => $finishedAt,
             ];

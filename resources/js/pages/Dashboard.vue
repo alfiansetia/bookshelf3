@@ -347,7 +347,7 @@ const totalForBar = computed(() =>
                                 class="inline-flex items-center gap-1 text-sm font-medium text-amber-600 dark:text-amber-400"
                             >
                                 <Star class="size-3.5 fill-current" />
-                                {{ book.rating }}
+                                {{ formatNumber(book.rating) }}
                             </span>
                         </li>
                     </ul>

@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { Star } from '@lucide/vue';
 import { cn } from '@/lib/utils';
-import { ratingLabel } from '@/lib/format';
+import { ratingLabel, formatNumber } from '@/lib/format';
 
 const props = withDefaults(
     defineProps<{
@@ -86,7 +86,7 @@ const stars = computed(() =>
         </div>
 
         <span v-if="props.showValue" class="text-xs text-muted-foreground">
-            {{ props.value ? `${props.value}/5` : 'Belum dinilai' }}
+            {{ props.value ? `${formatNumber(props.value)}/5` : 'Belum dinilai' }}
         </span>
     </div>
 </template>
