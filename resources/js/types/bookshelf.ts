@@ -12,7 +12,8 @@ export type ShelfTheme =
     | 'cozy'
     | 'story'
     | 'catalog'
-    | 'stack';
+    | 'stack'
+    | 'timeline';
 
 export type ShelfVisibility = 'public' | 'unlisted' | 'private';
 

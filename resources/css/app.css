@@ -188,7 +188,7 @@
 
 /*
   ┌─────────────────────────────────────────────────────────┐
-  │ Token gaya rak buku (7 tema)                            │
+  │ Token gaya rak buku (8 tema)                            │
   │ Dipakai lewat atribut data-shelf-theme pada wrapper rak. │
   └─────────────────────────────────────────────────────────┘
 */
@@ -368,6 +368,31 @@
     --shelf-muted: hsl(28 12% 68%);
     --shelf-accent: hsl(24 86% 66%);
     --shelf-accent-soft: hsl(22 30% 22%);
+}
+
+/* 8. Linimasa Baca */
+[data-shelf-theme='timeline'] {
+    --shelf-plank: hsl(160 18% 62%);
+    --shelf-plank-edge: hsl(162 30% 42%);
+    --shelf-surface: hsl(90 14% 96%);
+    --shelf-surface-2: hsl(0 0% 100%);
+    --shelf-ink: hsl(165 25% 14%);
+    --shelf-muted: hsl(160 10% 42%);
+    --shelf-accent: hsl(164 80% 30%);
+    --shelf-accent-soft: hsl(164 45% 90%);
+    --shelf-glow: transparent;
+    --shelf-radius: 0.75rem;
+}
+
+.dark [data-shelf-theme='timeline'] {
+    --shelf-plank: hsl(160 14% 32%);
+    --shelf-plank-edge: hsl(162 22% 22%);
+    --shelf-surface: hsl(165 12% 11%);
+    --shelf-surface-2: hsl(165 10% 15%);
+    --shelf-ink: hsl(140 20% 94%);
+    --shelf-muted: hsl(150 10% 66%);
+    --shelf-accent: hsl(160 55% 62%);
+    --shelf-accent-soft: hsl(164 30% 18%);
 }
 
 @layer base {

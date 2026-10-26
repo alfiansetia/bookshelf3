@@ -14,6 +14,7 @@ enum ShelfTheme: string
     case Story = 'story';
     case Catalog = 'catalog';
     case Stack = 'stack';
+    case Timeline = 'timeline';
 
     /**
      * Nama gaya rak.
@@ -28,6 +29,7 @@ enum ShelfTheme: string
             self::Story => 'Rak Reel Cerita',
             self::Catalog => 'Kartu Katalog',
             self::Stack => 'Tumpukan Meja',
+            self::Timeline => 'Linimasa Baca',
         };
     }
 
@@ -44,6 +46,7 @@ enum ShelfTheme: string
             self::Story => 'Kartu cerita vertikal full-cover yang digeser seperti story, mobile-first.',
             self::Catalog => 'Kartu katalog perpustakaan bernomor dengan stempel status, mobile-first.',
             self::Stack => 'Buku ditumpuk rebahan seperti di meja, 4 buku per tumpukan.',
+            self::Timeline => 'Perjalanan bacamu sebagai garis waktu dengan tanggal selesai.',
         };
     }
 
@@ -60,6 +63,7 @@ enum ShelfTheme: string
             self::Story => 'Setiap status jadi strip reel horizontal: kartu 9:14 full-cover dengan judul di atas gradient, digeser dengan snap. Sama di ponsel dan desktop, tanpa pratinjau hover.',
             self::Catalog => 'Kartu katalog ala perpustakaan: nomor urut, sampul kecil, judul, penulis, dan stempel status. Satu kolom di ponsel, dua kolom di tablet, tiga kolom di desktop.',
             self::Stack => 'Buku ditumpuk mendatar 4 per nampan meja: strip warna tiap buku, sampul kecil, judul, rating, dan tepi halaman. Satu kolom di ponsel, dua kolom nampan di desktop.',
+            self::Timeline => 'Satu garis vertikal dengan titik warna status per buku: tanggal selesai, sampul kecil, judul, dan rating. Sama di ponsel dan desktop.',
         };
     }
 
@@ -84,6 +88,7 @@ enum ShelfTheme: string
             self::Story => '#f59e0b',
             self::Catalog => '#4f46e5',
             self::Stack => '#c2410c',
+            self::Timeline => '#047857',
         };
     }
 
