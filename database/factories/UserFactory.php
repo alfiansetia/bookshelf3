@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\ShelfVisibility;
 use App\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -27,7 +28,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
             'theme' => 'wood',
-            'is_public' => true,
+            'visibility' => ShelfVisibility::Public,
             'role' => UserRole::User,
         ];
     }
@@ -53,12 +54,22 @@ class UserFactory extends Factory
     }
 
     /**
-     * Rak yang disembunyikan dari publik.
+     * Rak yang disembunyikan dari publik (hanya pemilik).
      */
     public function privateShelf(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_public' => false,
+            'visibility' => ShelfVisibility::Private,
+        ]);
+    }
+
+    /**
+     * Rak unlisted: tidak tampil di jelajah tapi bisa dibuka lewat link.
+     */
+    public function unlistedShelf(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'visibility' => ShelfVisibility::Unlisted,
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateShelfPreferencesRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use App\ShelfTheme;
+use App\ShelfVisibility;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,7 +35,9 @@ class ShelfController extends Controller
         return Inertia::render('settings/Shelf', [
             'themes' => ShelfTheme::options(),
             'selectedTheme' => $user->shelfTheme()->value,
-            'isPublic' => $user->is_public,
+            'visibility' => $user->visibility->value,
+            'visibilityOptions' => ShelfVisibility::options(),
+            'isPublic' => $user->shelfIsPublic(),
             'shelfUrl' => $user->hasUsername() ? route('shelf.show', $user->username) : null,
             'username' => $user->username,
             'stats' => $this->shelfSummary(clone $base),

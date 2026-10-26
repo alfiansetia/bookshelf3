@@ -4,8 +4,9 @@ import { Link } from '@inertiajs/vue3';
 import {
     BookOpen,
     CalendarDays,
-    EyeOff,
     Heart,
+    Link2,
+    Lock,
     Pencil,
     Star,
     TrendingUp,
@@ -169,11 +170,19 @@ const highlights = computed(() => [
                 </span>
 
                 <span
-                    v-if="!props.profile.is_public"
+                    v-if="props.profile.visibility === 'private'"
                     class="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 font-medium text-muted-foreground"
                 >
-                    <EyeOff class="size-3.5" />
-                    Rak ini sedang disembunyikan dari publik
+                    <Lock class="size-3.5" />
+                    Rak ini privat, hanya pemilik yang bisa melihat
+                </span>
+
+                <span
+                    v-else-if="props.profile.visibility === 'unlisted'"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 font-medium text-muted-foreground"
+                >
+                    <Link2 class="size-3.5" />
+                    Rak unlisted, tidak tampil di jelajah
                 </span>
             </div>
 

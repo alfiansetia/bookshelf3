@@ -29,7 +29,7 @@ class PublicBookController extends Controller
             return $this->blockedShelf($user, 'book');
         }
 
-        if (! $user->is_public && ! $isOwner) {
+        if ($user->shelfIsPrivate() && ! $isOwner) {
             return Inertia::render('public/Private', [
                 'username' => $user->username,
                 'context' => 'book',

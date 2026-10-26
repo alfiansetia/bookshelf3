@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ShelfTheme;
+use App\ShelfVisibility;
 use App\SocialPlatform;
 use App\UserRole;
 use Carbon\CarbonImmutable;
@@ -31,7 +32,7 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $tagline
  * @property string|null $bio
  * @property ShelfTheme|null $theme
- * @property bool $is_public
+ * @property ShelfVisibility $visibility
  * @property string|null $social_instagram
  * @property string|null $social_tiktok
  * @property string|null $social_x
@@ -54,7 +55,7 @@ use Illuminate\Support\Facades\Storage;
  */
 #[Fillable([
     'name', 'email', 'username', 'google_id', 'avatar_path', 'tagline',
-    'bio', 'theme', 'is_public', 'social_instagram', 'social_tiktok', 'social_x',
+    'bio', 'theme', 'visibility', 'social_instagram', 'social_tiktok', 'social_x',
     'social_youtube', 'social_linkedin', 'social_website',
     'role', 'blocked_at', 'blocked_reason', 'blocked_by_id',
 ])]
@@ -85,7 +86,7 @@ class User extends Authenticatable
             'blocked_at' => 'datetime',
             'theme' => ShelfTheme::class,
             'role' => UserRole::class,
-            'is_public' => 'boolean',
+            'visibility' => ShelfVisibility::class,
         ];
     }
 
@@ -222,11 +223,48 @@ class User extends Authenticatable
     }
 
     /**
-     * Apakah rak bisa dilihat publik.
+     * Apakah rak tampil di jelajah (publik + punya username).
      */
     public function shelfIsPublic(): bool
     {
-        return $this->is_public && $this->hasUsername();
+        return $this->visibility === ShelfVisibility::Public && $this->hasUsername();
+    }
+
+    /**
+     * Apakah rak bisa dibuka lewat direct link oleh non-owner.
+     *
+     * Berlaku untuk public dan unlisted yang sudah punya username.
+     */
+    public function shelfIsAccessibleViaLink(): bool
+    {
+        return in_array($this->visibility, [ShelfVisibility::Public, ShelfVisibility::Unlisted], true)
+            && $this->hasUsername();
+    }
+
+    /**
+     * Apakah rak berstatus unlisted.
+     */
+    public function shelfIsUnlisted(): bool
+    {
+        return $this->visibility === ShelfVisibility::Unlisted && $this->hasUsername();
+    }
+
+    /**
+     * Apakah rak berstatus privat (hanya pemilik).
+     */
+    public function shelfIsPrivate(): bool
+    {
+        return $this->visibility === ShelfVisibility::Private;
+    }
+
+    /**
+     * Kompatibilitas baca untuk kode lama yang memakai is_public.
+     *
+     * true hanya untuk rak publik, false untuk unlisted dan privat.
+     */
+    public function getIsPublicAttribute(): bool
+    {
+        return $this->visibility === ShelfVisibility::Public;
     }
 
     /**
@@ -272,15 +310,16 @@ class User extends Authenticatable
     }
 
     /**
-     * Rak yang sudah punya username dan boleh diakses publik.
+     * Rak yang tampil di jelajah: hanya yang publik dan punya username.
      *
+     * Rak unlisted dan privat disembunyikan dari jelajah, halaman depan, dan sitemap.
      * Akun yang diblokir disembunyikan dari jelajah, halaman depan, dan sitemap.
      *
      * @param  Builder<User>  $query
      */
     public function scopePublicShelf(Builder $query): void
     {
-        $query->where('is_public', true)
+        $query->where('visibility', ShelfVisibility::Public)
             ->whereNotNull('username')
             ->whereNull('blocked_at');
     }

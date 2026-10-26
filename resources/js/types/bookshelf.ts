@@ -7,6 +7,8 @@ export type BookStatus =
 
 export type ShelfTheme = 'wood' | 'minimal' | 'neon' | 'cozy' | 'story';
 
+export type ShelfVisibility = 'public' | 'unlisted' | 'private';
+
 export type StatusColor = 'amber' | 'sky' | 'emerald' | 'violet' | 'rose';
 
 export type Book = {
@@ -144,10 +146,17 @@ export type ShelfProfile = {
     tagline: string | null;
     bio: string | null;
     theme: ShelfTheme;
+    visibility: ShelfVisibility;
     is_public: boolean;
     socials: SocialProfile[];
     member_since: string | null;
     joined_at: string | null;
+};
+
+export type ShelfVisibilityOption = {
+    value: ShelfVisibility;
+    label: string;
+    description: string;
 };
 
 export type SocialProfile = {

@@ -176,6 +176,7 @@ const structuredData = computed(() => [
         :canonical="props.canonical"
         :image="props.profile.avatar_url"
         type="profile"
+        :noindex="props.profile.visibility !== 'public'"
     />
     <JsonLd :data="structuredData" />
 

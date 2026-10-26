@@ -13,7 +13,7 @@ it('mengisi rak demo dengan buku bersinopsis dan berulasan', function () {
     $owner = User::query()->where('username', 'demo')->firstOrFail();
     $books = Book::query()->where('user_id', $owner->id)->get();
 
-    expect($owner->is_public)->toBeTrue()
+    expect($owner->visibility->value)->toBe('public')
         ->and($books)->not->toBeEmpty()
         ->and($books->every(fn (Book $book) => filled($book->synopsis)))->toBeTrue();
 

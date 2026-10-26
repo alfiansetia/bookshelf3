@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
 import { logout } from '@/routes';
-import { index as adminUsersIndex } from '@/routes/admin/users';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 
@@ -38,17 +37,17 @@ const handleLogout = () => {
         <DropdownMenuItem v-if="isAdmin" :as-child="true">
             <Link
                 class="block w-full cursor-pointer"
-                :href="adminUsersIndex()"
+                href="/admin"
                 prefetch
             >
                 <ShieldCheck class="mr-2 h-4 w-4" />
-                Kelola pengguna
+                Dashboard Admin
             </Link>
         </DropdownMenuItem>
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full cursor-pointer" :href="edit()" prefetch>
                 <Settings class="mr-2 h-4 w-4" />
-                Settings
+                Pengaturan
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>

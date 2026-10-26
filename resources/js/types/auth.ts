@@ -11,6 +11,7 @@ export type User = {
     tagline: string | null;
     bio: string | null;
     theme: 'wood' | 'minimal' | 'neon' | 'cozy' | 'story';
+    visibility: 'public' | 'unlisted' | 'private';
     is_public: boolean;
     blocked_at: string | null;
     blocked_reason: string | null;

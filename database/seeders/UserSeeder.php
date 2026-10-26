@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\ShelfVisibility;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -74,7 +75,7 @@ class UserSeeder extends Seeder
                     ...$attributes,
                     'google_id' => 'demo-'.Str::random(16),
                     'email_verified_at' => now(),
-                    'is_public' => true,
+                    'visibility' => ShelfVisibility::Public,
                 ],
             );
         }

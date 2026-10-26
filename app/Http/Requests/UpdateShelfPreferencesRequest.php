@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\ShelfTheme;
+use App\ShelfVisibility;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -18,13 +19,17 @@ class UpdateShelfPreferencesRequest extends FormRequest
     }
 
     /**
-     * Pastikan nilai boolean terkirim sebagai boolean sungguhan.
+     * Terima nilai lama is_public agar kompatibel dengan form lama.
      */
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'is_public' => $this->boolean('is_public'),
-        ]);
+        if (! $this->has('visibility') && $this->has('is_public')) {
+            $this->merge([
+                'visibility' => $this->boolean('is_public')
+                    ? ShelfVisibility::Public->value
+                    : ShelfVisibility::Private->value,
+            ]);
+        }
     }
 
     /**
@@ -36,7 +41,7 @@ class UpdateShelfPreferencesRequest extends FormRequest
     {
         return [
             'theme' => ['required', Rule::enum(ShelfTheme::class)],
-            'is_public' => ['boolean'],
+            'visibility' => ['required', Rule::enum(ShelfVisibility::class)],
         ];
     }
 

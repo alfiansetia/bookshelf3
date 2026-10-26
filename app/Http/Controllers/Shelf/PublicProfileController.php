@@ -35,7 +35,7 @@ class PublicProfileController extends Controller
             return $this->blockedShelf($user, 'profile');
         }
 
-        if (! $user->is_public && ! $isOwner) {
+        if ($user->shelfIsPrivate() && ! $isOwner) {
             return Inertia::render('public/Private', [
                 'username' => $user->username,
                 'context' => 'profile',

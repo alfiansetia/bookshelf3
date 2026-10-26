@@ -129,6 +129,7 @@ const structuredData = computed(() => [
         :canonical="props.canonical"
         :image="props.book.cover_url"
         type="book"
+        :noindex="props.profile.visibility !== 'public'"
     />
     <JsonLd :data="structuredData" />
 

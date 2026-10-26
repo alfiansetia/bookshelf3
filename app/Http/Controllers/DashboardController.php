@@ -62,6 +62,7 @@ class DashboardController extends Controller
             'share' => [
                 'url' => $user->hasUsername() ? route('shelf.show', $user->username) : null,
                 'public' => $user->shelfIsPublic(),
+                'visibility' => $user->visibility->value,
             ],
         ]);
     }

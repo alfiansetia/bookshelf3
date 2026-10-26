@@ -20,7 +20,7 @@ class BookPolicy
      */
     public function view(User $user, Book $book): bool
     {
-        return $book->isOwnedBy($user) || $book->user->shelfIsPublic();
+        return $book->isOwnedBy($user) || $book->user->shelfIsAccessibleViaLink();
     }
 
     /**

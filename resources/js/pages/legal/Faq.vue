@@ -33,7 +33,7 @@ const faqs = [
     },
     {
         question: 'Bisakah rak saya dibuat privat?',
-        answer: 'Bisa. Atur visibilitas rak dari pengaturan supaya tidak tampil di halaman jelajah dan tidak terindeks mesin pencari. Kamu tetap bisa melihat dan mengelola bukumu setelah masuk.',
+        answer: 'Bisa. Pilih Publik untuk tampil di jelajah, Unlisted untuk disembunyikan dari jelajah tapi tetap bisa dibuka lewat link, atau Privat agar hanya kamu yang bisa membukanya.',
     },
     {
         question: 'Data apa saja yang disimpan tentang saya?',

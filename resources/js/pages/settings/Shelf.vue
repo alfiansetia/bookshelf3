@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Eye, EyeOff, Loader2, Palette, Save } from '@lucide/vue';
+import { Eye, Link2, Loader2, Lock, Palette, Save } from '@lucide/vue';
 import EmptyState from '@/components/bookshelf/EmptyState.vue';
 import ShelfRenderer from '@/components/bookshelf/shelves/ShelfRenderer.vue';
 import ShelfThemePicker from '@/components/bookshelf/ShelfThemePicker.vue';
@@ -9,7 +9,6 @@ import ShareButton from '@/components/bookshelf/ShareButton.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { edit as editShelf, update } from '@/routes/shelf';
 import type {
@@ -17,6 +16,8 @@ import type {
     ShelfSummary,
     ShelfTheme,
     ShelfThemeOption,
+    ShelfVisibility,
+    ShelfVisibilityOption,
 } from '@/types';
 
 defineOptions({
@@ -28,6 +29,8 @@ defineOptions({
 const props = defineProps<{
     themes: ShelfThemeOption[];
     selectedTheme: ShelfTheme;
+    visibility: ShelfVisibility;
+    visibilityOptions: ShelfVisibilityOption[];
     isPublic: boolean;
     shelfUrl: string | null;
     username: string | null;
@@ -37,7 +40,7 @@ const props = defineProps<{
 
 const form = useForm({
     theme: props.selectedTheme,
-    is_public: props.isPublic,
+    visibility: props.visibility,
 });
 
 const activeTheme = computed(
@@ -46,8 +49,25 @@ const activeTheme = computed(
         props.themes[0],
 );
 
+const visibilityIcons: Record<ShelfVisibility, typeof Eye> = {
+    public: Eye,
+    unlisted: Link2,
+    private: Lock,
+};
+
+const activeVisibility = computed(
+    () =>
+        props.visibilityOptions.find(
+            (option) => option.value === form.visibility,
+        ) ?? props.visibilityOptions[0],
+);
+
 function chooseTheme(theme: ShelfTheme): void {
     form.theme = theme;
+}
+
+function chooseVisibility(value: ShelfVisibility): void {
+    form.visibility = value;
 }
 
 function save(): void {
@@ -106,47 +126,70 @@ function save(): void {
                 </p>
             </div>
 
-            <div
-                class="flex items-start justify-between gap-4 rounded-2xl border border-border/70 bg-card p-4"
-            >
-                <div class="flex items-start gap-3">
-                    <span
+            <div class="space-y-3">
+                <p class="text-sm font-medium text-foreground">
+                    Siapa yang boleh melihat rak ini?
+                </p>
+
+                <div class="grid gap-2 sm:grid-cols-3">
+                    <button
+                        v-for="option in props.visibilityOptions"
+                        :key="option.value"
+                        type="button"
                         :class="
                             cn(
-                                'flex size-9 items-center justify-center rounded-xl',
-                                form.is_public
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
-                                    : 'bg-muted text-muted-foreground',
+                                'flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors',
+                                form.visibility === option.value
+                                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                    : 'border-border/70 bg-card hover:border-primary/50',
                             )
                         "
+                        @click="chooseVisibility(option.value)"
                     >
-                        <Eye v-if="form.is_public" class="size-4" />
-                        <EyeOff v-else class="size-4" />
-                    </span>
-                    <div class="space-y-1">
-                        <p class="text-sm font-medium text-foreground">
-                            Tampilkan rak ke publik
-                        </p>
-                        <p class="text-xs text-muted-foreground">
-                            Kalau dimatikan, hanya kamu yang bisa membuka
-                            halaman rak ini.
-                        </p>
-                        <p
-                            v-if="props.shelfUrl"
-                            class="truncate text-xs text-primary"
+                        <span
+                            :class="
+                                cn(
+                                    'flex size-9 items-center justify-center rounded-xl',
+                                    form.visibility === option.value
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-muted text-muted-foreground',
+                                )
+                            "
                         >
-                            {{ props.shelfUrl }}
-                        </p>
-                    </div>
+                            <component
+                                :is="visibilityIcons[option.value]"
+                                class="size-4"
+                            />
+                        </span>
+                        <span class="space-y-1">
+                            <span
+                                class="block text-sm font-medium text-foreground"
+                            >
+                                {{ option.label }}
+                            </span>
+                            <span
+                                class="block text-xs leading-relaxed text-muted-foreground"
+                            >
+                                {{ option.description }}
+                            </span>
+                        </span>
+                    </button>
                 </div>
+                <InputError :message="form.errors.visibility" />
 
-                <Switch
-                    id="is_public"
-                    :model-value="form.is_public"
-                    @update:model-value="form.is_public = $event"
-                />
+                <p
+                    v-if="props.shelfUrl && form.visibility !== 'private'"
+                    class="truncate text-xs text-primary"
+                >
+                    {{ props.shelfUrl }}
+                </p>
+                <p
+                    v-else-if="activeVisibility"
+                    class="text-xs text-muted-foreground"
+                >
+                    {{ activeVisibility.description }}
+                </p>
             </div>
-            <InputError :message="form.errors.is_public" />
 
             <div class="flex flex-wrap items-center gap-3">
                 <Button type="submit" :disabled="form.processing">
@@ -159,7 +202,7 @@ function save(): void {
                 </Button>
 
                 <ShareButton
-                    v-if="props.shelfUrl && form.is_public"
+                    v-if="props.shelfUrl && form.visibility !== 'private'"
                     :url="props.shelfUrl"
                     title="Rak buku saya"
                     label="Bagikan rak"
