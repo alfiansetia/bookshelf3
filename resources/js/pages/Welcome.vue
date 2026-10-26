@@ -223,7 +223,7 @@ function coverOf(shelf: FeaturedShelf): string | null {
                                 <Heart
                                     class="size-3 fill-current text-rose-500"
                                 />
-                                5 gaya siap pakai
+                                {{ props.themes.length }} gaya siap pakai
                             </span>
                         </div>
 
