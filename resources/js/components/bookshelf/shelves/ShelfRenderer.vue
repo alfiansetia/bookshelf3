@@ -2,16 +2,20 @@
 import { computed } from 'vue';
 import { shelfThemeComponent } from '@/lib/shelfThemes';
 import { cn } from '@/lib/utils';
-import type { ShelfRow, ShelfTheme } from '@/types';
+import type { BookStatus, ShelfBook, ShelfTheme } from '@/types';
 
 const props = withDefaults(
     defineProps<{
         theme: ShelfTheme;
-        rows: ShelfRow[];
+        books: ShelfBook[];
+        spotlight?: BookStatus | null;
+        favoriteSpotlight?: boolean;
         owner?: boolean;
         class?: string;
     }>(),
     {
+        spotlight: null,
+        favoriteSpotlight: false,
         owner: false,
     },
 );
@@ -19,9 +23,11 @@ const props = withDefaults(
 const component = computed(() => shelfThemeComponent(props.theme));
 
 /**
- * Tema neon selalu tampil gelap, apa pun preferensi pengunjung.
+ * Tema neon dan story selalu tampil gelap, apa pun preferensi pengunjung.
  */
-const forceDark = computed(() => props.theme === 'neon');
+const forceDark = computed(
+    () => props.theme === 'neon' || props.theme === 'story',
+);
 </script>
 
 <template>
@@ -29,7 +35,7 @@ const forceDark = computed(() => props.theme === 'neon');
         :data-shelf-theme="props.theme"
         :class="
             cn(
-                'shelf-surface rounded-3xl border border-black/5 p-4 shadow-sm sm:p-8 dark:border-white/5',
+                'shelf-surface rounded-3xl border border-black/5 p-4 shadow-xs sm:p-8 dark:border-white/5',
                 forceDark && 'dark',
                 props.class,
             )
@@ -37,8 +43,10 @@ const forceDark = computed(() => props.theme === 'neon');
     >
         <component
             :is="component"
-            v-if="props.rows.length > 0"
-            :rows="props.rows"
+            v-if="props.books.length > 0"
+            :books="props.books"
+            :spotlight="props.spotlight"
+            :favorite-spotlight="props.favoriteSpotlight"
             :owner="props.owner"
         />
 

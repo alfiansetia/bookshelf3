@@ -20,6 +20,10 @@ class PublicProfileController extends Controller
 
     /**
      * Rak publik milik seorang pengguna.
+     *
+     * Seluruh buku dikirim sebagai kartu ramping; pencarian, bahasa,
+     * favorit, urutan, dan spotlight status dikerjakan di frontend
+     * supaya interaksi instan tanpa roundtrip server.
      */
     public function __invoke(Request $request, string $username): Response
     {
@@ -38,29 +42,22 @@ class PublicProfileController extends Controller
             ]);
         }
 
-        $filters = $this->shelfFiltersFrom($request);
         $base = Book::query()->whereBelongsTo($user);
-        $limit = (int) config('bookshelf.pagination.shelf');
 
-        $filteredTotal = $this->applyShelfFilters(clone $base, $filters)->count();
-
-        $books = $this->applyShelfFilters(clone $base, $filters)
+        $books = (clone $base)
             ->with('user')
-            ->limit($limit)
+            ->orderByDesc('created_at')
             ->get();
 
         return Inertia::render('public/Profile', [
             'profile' => (new ShelfProfileResource($user))->resolve(),
             'stats' => $this->shelfSummary(clone $base),
-            'rows' => $this->shelfRows($books),
+            'books' => $this->shelfBooks($books),
             'statusCounts' => $this->bookStatusCounts(clone $base),
             'languages' => $this->bookLanguagesInShelf(clone $base),
             'statuses' => BookStatus::options(),
             'sortOptions' => Book::sortOptions(),
-            'filters' => $filters,
             'isOwner' => $isOwner,
-            'limit' => $limit,
-            'filteredTotal' => $filteredTotal,
             'canonical' => route('shelf.show', $user->username),
         ]);
     }

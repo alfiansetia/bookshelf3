@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { cn } from '@/lib/utils';
+import { bookColorGradient, bookColorInk } from '@/lib/bookColors';
 import { coverGradient, titleInitials } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import type { Book } from '@/types';
 
 type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 const props = withDefaults(
     defineProps<{
-        book?: Book | null;
+        book?: Pick<Book, 'title' | 'author' | 'cover_url' | 'cover_color'> | null;
         title?: string;
         author?: string | null;
         coverUrl?: string | null;
@@ -53,6 +54,22 @@ const showImage = computed(
 const gradient = computed(() => coverGradient(resolvedTitle.value));
 const initials = computed(() => titleInitials(resolvedTitle.value));
 
+/** Warna pilihan pemilik; kalau kosong pakai gradien bawaan dari judul. */
+const resolvedColor = computed(() => props.book?.cover_color ?? null);
+
+const fallbackStyles = computed((): Record<string, string> => {
+    const color = resolvedColor.value;
+
+    if (color === null) {
+        return {};
+    }
+
+    return {
+        backgroundImage: bookColorGradient(color),
+        color: bookColorInk(color),
+    };
+});
+
 watch(resolvedCover, () => {
     imageFailed.value = false;
 });
@@ -82,10 +99,12 @@ watch(resolvedCover, () => {
             v-else
             :class="
                 cn(
-                    'flex h-full w-full flex-col justify-between bg-gradient-to-br p-1.5 text-white',
-                    gradient,
+                    'flex h-full w-full flex-col justify-between p-1.5',
+                    !resolvedColor && 'bg-gradient-to-br text-white',
+                    !resolvedColor && gradient,
                 )
             "
+            :style="fallbackStyles"
         >
             <span class="font-display leading-none opacity-70">
                 {{ initials }}

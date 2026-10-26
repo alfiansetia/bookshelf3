@@ -10,6 +10,16 @@ use Illuminate\Validation\Rule;
 trait BookValidationRules
 {
     /**
+     * Normalisasi warna sampul: string kosong dianggap tidak memilih warna.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('cover_color') === '') {
+            $this->merge(['cover_color' => null]);
+        }
+    }
+
+    /**
      * Aturan validasi buku untuk halaman tambah maupun ubah.
      *
      * @return array<string, array<int, ValidationRule|array<mixed>|string>>
@@ -31,6 +41,7 @@ trait BookValidationRules
             'rating' => ['nullable', 'integer', 'min:'.$rating['min'], 'max:'.$rating['max']],
             'synopsis' => ['nullable', 'string', 'max:'.$limits['synopsis'], new NoProfanity],
             'review' => ['nullable', 'string', 'max:'.$limits['review'], new NoProfanity],
+            'cover_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'total_pages' => ['nullable', 'integer', 'min:1', 'max:20000'],
             'started_at' => ['nullable', 'date', 'before_or_equal:today'],
             'finished_at' => ['nullable', 'date', 'after_or_equal:started_at', 'before_or_equal:today'],
@@ -77,6 +88,7 @@ trait BookValidationRules
                 $cover['max_source_width'],
                 $cover['max_source_height'],
             ),
+            'cover_color.regex' => 'Warna sampul harus kode hex seperti #b4763a.',
             'total_pages.min' => 'Jumlah halaman minimal 1.',
             'started_at.before_or_equal' => 'Tanggal mulai tidak boleh melewati hari ini.',
             'finished_at.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',

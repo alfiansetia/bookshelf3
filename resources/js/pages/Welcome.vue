@@ -64,9 +64,9 @@ const structuredData = computed(() => [
 const features = [
     {
         icon: Palette,
-        title: 'Empat gaya rak',
+        title: 'Lima gaya rak',
         description:
-            'Pilih tampilan rak kayu klasik, minimalis, neon, atau kafe hangat. Ganti kapan saja tanpa kehilangan datamu.',
+            'Pilih tampilan rak kayu klasik, minimalis, neon, kafe hangat, atau reel cerita. Ganti kapan saja tanpa kehilangan datamu.',
     },
     {
         icon: BookOpen,
@@ -223,7 +223,7 @@ function coverOf(shelf: FeaturedShelf): string | null {
                                 <Heart
                                     class="size-3 fill-current text-rose-500"
                                 />
-                                4 gaya siap pakai
+                                5 gaya siap pakai
                             </span>
                         </div>
 

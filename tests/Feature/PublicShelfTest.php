@@ -16,7 +16,7 @@ it('menampilkan rak publik kepada pengunjung', function () {
             ->where('profile.username', 'pembaca-hebat')
             ->where('isOwner', false)
             ->where('stats.total', 2)
-            ->has('rows', 2),
+            ->has('books', 2),
         );
 });
 
@@ -30,7 +30,7 @@ it('memberi tahu pengunjung saat rak bersifat privat', function () {
             ->component('public/Private')
             ->where('username', 'pembaca-privat')
             ->where('context', 'profile')
-            ->missing('rows')
+            ->missing('books')
             ->missing('stats'),
         );
 
@@ -72,7 +72,7 @@ it('tidak membocorkan buku milik pengguna lain di rak publik', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->where('stats.total', 1)
-            ->where('rows.0.books.0.title', 'Buku Sendiri'),
+            ->where('books.0.title', 'Buku Sendiri'),
         );
 });
 
@@ -111,4 +111,4 @@ it('menampilkan tema rak sesuai pilihan pemiliknya', function (string $theme) {
             ->component('public/Profile')
             ->where('profile.theme', $theme),
         );
-})->with(['wood', 'minimal', 'neon', 'cozy']);
+})->with(['wood', 'minimal', 'neon', 'cozy', 'story']);

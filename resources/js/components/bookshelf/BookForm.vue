@@ -7,7 +7,7 @@ import DatePicker from '@/components/bookshelf/DatePicker.vue';
 import StarRatingInput from '@/components/bookshelf/StarRatingInput.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { bookColorPresets } from '@/lib/bookColors';import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -68,11 +68,15 @@ const form = useForm<BookFormValues>({
     started_at: props.book?.started_at ?? '',
     finished_at: props.book?.finished_at ?? '',
     is_favorite: props.book?.is_favorite ?? false,
+    cover_color: props.book?.cover_color ?? null,
     cover: null,
     remove_cover: false,
 });
 
 const existingCover = ref<string | null>(props.book?.cover_url ?? null);
+
+/** Nilai input color kustom; terpisah supaya null (otomatis) tetap bisa. */
+const customColor = ref(props.book?.cover_color ?? '#b4763a');
 
 const synopsisMax = 6000;
 const reviewMax = 6000;
@@ -180,6 +184,55 @@ function submit(): void {
             />
             <InputError :message="form.errors.cover" />
             <InputError :message="form.errors.remove_cover" />
+
+            <div class="grid gap-2">
+                <Label>Warna sampul</Label>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button
+                        v-for="preset in bookColorPresets"
+                        :key="preset"
+                        type="button"
+                        :title="preset"
+                        :aria-pressed="form.cover_color === preset"
+                        :class="
+                            cn(
+                                'size-8 rounded-full border-2 transition-transform hover:scale-110',
+                                form.cover_color === preset
+                                    ? 'border-primary ring-2 ring-primary/30'
+                                    : 'border-black/10 dark:border-white/15',
+                            )
+                        "
+                        :style="{ backgroundColor: preset }"
+                        @click="form.cover_color = preset"
+                    />
+                    <label
+                        class="relative flex size-8 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border text-xs font-bold text-muted-foreground transition-transform hover:scale-110"
+                        title="Warna kustom"
+                    >
+                        <input
+                            v-model="customColor"
+                            type="color"
+                            class="absolute inset-0 cursor-pointer opacity-0"
+                            aria-label="Pilih warna kustom"
+                            @input="form.cover_color = customColor"
+                        />
+                        <span aria-hidden="true">+</span>
+                    </label>
+                    <button
+                        v-if="form.cover_color !== null"
+                        type="button"
+                        class="rounded-full border border-border/70 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                        @click="form.cover_color = null"
+                    >
+                        Otomatis
+                    </button>
+                </div>
+                <p class="text-xs text-muted-foreground">
+                    Dipakai untuk punggung kayu dan sampul cadangan saat
+                    tidak ada gambar. Kosongkan untuk warna otomatis.
+                </p>
+                <InputError :message="form.errors.cover_color" />
+            </div>
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="grid gap-2">

@@ -294,6 +294,32 @@
     --shelf-accent-soft: hsl(350 25% 20%);
 }
 
+/* 5. Rak Reel Cerita */
+[data-shelf-theme='story'] {
+    --shelf-plank: hsl(250 22% 26%);
+    --shelf-plank-edge: hsl(250 28% 36%);
+    --shelf-surface: hsl(252 28% 9%);
+    --shelf-surface-2: hsl(250 24% 14%);
+    --shelf-ink: hsl(45 40% 96%);
+    --shelf-muted: hsl(250 14% 68%);
+    --shelf-accent: hsl(38 95% 58%);
+    --shelf-accent-soft: hsl(38 60% 16%);
+    --shelf-glow: hsl(38 95% 58%);
+    --shelf-radius: 1.4rem;
+}
+
+.dark [data-shelf-theme='story'] {
+    --shelf-plank: hsl(250 24% 22%);
+    --shelf-plank-edge: hsl(250 30% 34%);
+    --shelf-surface: hsl(252 30% 7%);
+    --shelf-surface-2: hsl(250 26% 12%);
+    --shelf-ink: hsl(45 40% 96%);
+    --shelf-muted: hsl(250 14% 70%);
+    --shelf-accent: hsl(38 96% 62%);
+    --shelf-accent-soft: hsl(38 60% 15%);
+    --shelf-glow: hsl(16 90% 62%);
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
@@ -351,6 +377,19 @@
     .shelf-surface {
         background-color: var(--shelf-surface);
         color: var(--shelf-ink);
+    }
+
+    /*
+     | Sembunyikan scrollbar native tapi tetap bisa digeser
+     | (sentuh, wheel, tombol panah). Untuk strip reel.
+     */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
     }
 
     .book-lift {

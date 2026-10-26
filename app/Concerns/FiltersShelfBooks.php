@@ -102,35 +102,17 @@ trait FiltersShelfBooks
     }
 
     /**
-     * Kelompokkan buku menjadi baris rak per status baca.
+     * Daftar buku rak yang sudah difilter sebagai satu rak campur,
+     * dalam bentuk kartu ramping untuk filtering di frontend.
      *
      * @param  Collection<int, Book>  $books
-     * @return array<int, array{status: string, label: string, color: string, icon: string, total: int, books: array<int, array<string, mixed>>}>
+     * @return array<int, array<string, mixed>>
      */
-    protected function shelfRows(Collection $books): array
+    protected function shelfBooks(Collection $books): array
     {
-        $rows = [];
-
-        foreach (BookStatus::ordered() as $status) {
-            $grouped = $books->filter(fn (Book $book): bool => $book->status === $status);
-
-            if ($grouped->isEmpty()) {
-                continue;
-            }
-
-            $rows[] = [
-                'status' => $status->value,
-                'label' => $status->label(),
-                'color' => $status->color(),
-                'icon' => $status->icon(),
-                'total' => $grouped->count(),
-                'books' => $grouped->values()
-                    ->map(fn (Book $book): array => BookResource::forShelf($book))
-                    ->all(),
-            ];
-        }
-
-        return $rows;
+        return $books->values()
+            ->map(fn (Book $book): array => BookResource::forShelfCard($book))
+            ->all();
     }
 
     /**

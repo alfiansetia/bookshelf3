@@ -34,6 +34,11 @@ const covers: Record<ShelfTheme, string[]> = {
         'bg-gradient-to-br from-rose-300 to-rose-500',
         'bg-gradient-to-br from-amber-200 to-amber-400',
     ],
+    story: [
+        'bg-gradient-to-br from-amber-400/90 to-rose-900',
+        'bg-gradient-to-br from-violet-500/90 to-slate-900',
+        'bg-gradient-to-br from-emerald-400/90 to-slate-900',
+    ],
 };
 
 /** Tinggi punggung tiruan untuk pratinjau rak kayu. */
@@ -46,7 +51,7 @@ const cardTilts = ['1.4deg', '-1.6deg'];
  * Kelas warna sampul ke-`index`, berulang kalau jumlahnya kurang.
  */
 function cover(index: number): string {
-    const palette = covers[props.theme];
+    const palette = covers[props.theme] ?? covers.wood;
 
     return palette[index % palette.length];
 }
@@ -138,7 +143,10 @@ function cover(index: number): string {
         </div>
 
         <!-- Rak kafe: polaroid miring di papan. -->
-        <div v-else class="flex min-h-20 items-end justify-center gap-3">
+        <div
+            v-else-if="props.theme === 'cozy'"
+            class="flex min-h-20 items-end justify-center gap-3"
+        >
             <span
                 v-for="index in 2"
                 :key="index"
@@ -156,6 +164,36 @@ function cover(index: number): string {
                 <span
                     class="mt-1 block h-1 w-3/4 rounded-full bg-shelf-muted/40"
                 />
+            </span>
+        </div>
+
+        <!-- Rak reel cerita: kartu vertikal full-cover yang mengintip. -->
+        <div v-else class="flex min-h-20 items-end justify-center gap-1.5">
+            <span
+                v-for="index in 3"
+                :key="index"
+                :class="
+                    cn(
+                        'relative block w-11 overflow-hidden rounded-[8px] border border-white/10',
+                        cover(index - 1),
+                        index === 2 ? 'aspect-[9/14] w-14' : 'aspect-[9/14] opacity-70',
+                    )
+                "
+            >
+                <span
+                    class="absolute inset-x-1.5 top-1.5 block h-0.5 overflow-hidden rounded-full bg-white/30"
+                >
+                    <span
+                        class="block h-full rounded-full bg-white/90"
+                        :style="{ width: `${(index / 3) * 100}%` }"
+                    />
+                </span>
+                <span
+                    class="absolute inset-x-1.5 bottom-1.5 block space-y-1"
+                >
+                    <span class="block h-1 w-full rounded-full bg-white/85" />
+                    <span class="block h-1 w-2/3 rounded-full bg-white/50" />
+                </span>
             </span>
         </div>
     </div>

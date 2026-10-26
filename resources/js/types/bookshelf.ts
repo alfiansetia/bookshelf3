@@ -5,7 +5,7 @@ export type BookStatus =
     | 'on_hold'
     | 'dropped';
 
-export type ShelfTheme = 'wood' | 'minimal' | 'neon' | 'cozy';
+export type ShelfTheme = 'wood' | 'minimal' | 'neon' | 'cozy' | 'story';
 
 export type StatusColor = 'amber' | 'sky' | 'emerald' | 'violet' | 'rose';
 
@@ -24,6 +24,7 @@ export type Book = {
     synopsis: string | null;
     review: string | null;
     cover_url: string | null;
+    cover_color: string | null;
     total_pages: number | null;
     started_at: string | null;
     finished_at: string | null;
@@ -53,6 +54,7 @@ export type BookFormValues = {
     rating: number | null;
     synopsis: string;
     review: string;
+    cover_color: string | null;
     total_pages: string;
     started_at: string;
     finished_at: string;
@@ -100,14 +102,28 @@ export type ShelfFilters = {
     favorite: boolean;
 };
 
-export type ShelfRow = {
-    status: BookStatus;
-    label: string;
-    color: StatusColor;
-    icon: string;
-    total: number;
-    books: Book[];
-};
+/**
+ * Kartu buku ramping untuk rak publik: cukup untuk kartu, filter,
+ * dan spotlight di frontend tanpa sinopsis/review yang berat.
+ */
+export type ShelfBook = Pick<
+    Book,
+    | 'id'
+    | 'title'
+    | 'author'
+    | 'published_year'
+    | 'language'
+    | 'language_label'
+    | 'status'
+    | 'status_label'
+    | 'rating'
+    | 'cover_url'
+    | 'cover_color'
+    | 'is_favorite'
+    | 'created_at'
+    | 'finished_at'
+    | 'public_url'
+>;
 
 export type ShelfSummary = {
     total: number;

@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, SearchX } from '@lucide/vue';
+import { useIntersectionObserver } from '@vueuse/core';
+import { BookOpen, Heart, SearchX } from '@lucide/vue';
 import EmptyState from '@/components/bookshelf/EmptyState.vue';
 import ProfileHero from '@/components/bookshelf/ProfileHero.vue';
-import ShelfFilterBar from '@/components/bookshelf/ShelfFilterBar.vue';
+import ShelfSpotlightBar from '@/components/bookshelf/ShelfSpotlightBar.vue';
 import ShelfRenderer from '@/components/bookshelf/shelves/ShelfRenderer.vue';
 import JsonLd from '@/components/seo/JsonLd.vue';
 import SeoHead from '@/components/seo/SeoHead.vue';
 import { Button } from '@/components/ui/button';
-import { formatNumber } from '@/lib/format';
+import {
+    defaultShelfQuery,
+    filterShelfBooks,
+} from '@/lib/shelfFilter';
 import { create } from '@/routes/books';
 import { show as shelfShow } from '@/routes/shelf';
 import type {
+    BookStatus,
     LanguageSummary,
-    ShelfFilters,
+    ShelfBook,
     ShelfProfile,
-    ShelfRow,
     ShelfSummary,
     SortOption,
     StatusOption,
@@ -25,15 +29,12 @@ import type {
 const props = defineProps<{
     profile: ShelfProfile;
     stats: ShelfSummary;
-    rows: ShelfRow[];
+    books: ShelfBook[];
     statusCounts: Record<string, number>;
     languages: LanguageSummary[];
     statuses: StatusOption[];
     sortOptions: SortOption[];
-    filters: ShelfFilters;
     isOwner: boolean;
-    limit: number;
-    filteredTotal: number;
     canonical: string;
 }>();
 
@@ -41,15 +42,106 @@ const shelfUrl = computed(() => shelfShow.url(props.profile.username));
 
 const hasBooks = computed(() => props.stats.total > 0);
 
-const hasActiveFilters = computed(
-    () =>
-        Boolean(props.filters.search) ||
-        Boolean(props.filters.status) ||
-        Boolean(props.filters.language) ||
-        props.filters.favorite,
+/**
+ * Seluruh state filter lokal di frontend: tanpa reload,
+ * 100 buku tersaring dalam < 1ms.
+ */
+const search = ref(defaultShelfQuery.search);
+const spotlight = ref<BookStatus | null>(defaultShelfQuery.spotlight);
+const language = ref<string | null>(defaultShelfQuery.language);
+const sort = ref(defaultShelfQuery.sort);
+const favorite = ref(defaultShelfQuery.favorite);
+
+const visibleBooks = computed(() =>
+    filterShelfBooks(props.books, {
+        search: search.value,
+        spotlight: spotlight.value,
+        language: language.value,
+        sort: sort.value,
+        favorite: favorite.value,
+    }),
 );
 
-const isTruncated = computed(() => props.filteredTotal > props.limit);
+/**
+ * Render chunking: DOM hanya menampung 24 kartu pertama, sisanya
+ * ditambah otomatis saat sentinel terlihat. Data sudah di FE,
+ * jadi tanpa request server sama sekali.
+ */
+const RENDER_CHUNK = 24;
+const renderLimit = ref(RENDER_CHUNK);
+
+const renderedBooks = computed(() =>
+    visibleBooks.value.slice(0, renderLimit.value),
+);
+
+const favoriteCount = computed(
+    () => visibleBooks.value.filter((book) => book.is_favorite).length,
+);
+
+/**
+ * Rak tampil selama ada kartu ter-render, kecuali mode favorit
+ * yang tidak punya satupun favorit: tampilkan pesan khusus.
+ */
+const showNoFavorite = computed(
+    () =>
+        hasBooks.value &&
+        renderedBooks.value.length > 0 &&
+        favorite.value &&
+        favoriteCount.value === 0,
+);
+
+const showShelf = computed(
+    () => renderedBooks.value.length > 0 && !showNoFavorite.value,
+);
+
+const showNoMatch = computed(
+    () => hasBooks.value && renderedBooks.value.length === 0,
+);
+
+const hasMore = computed(
+    () => renderedBooks.value.length < visibleBooks.value.length,
+);
+
+function loadMore(): void {
+    if (!hasMore.value) {
+        return;
+    }
+
+    renderLimit.value += RENDER_CHUNK;
+}
+
+watch([search, spotlight, language, sort, favorite], () => {
+    renderLimit.value = RENDER_CHUNK;
+});
+
+const sentinel = ref<HTMLDivElement | null>(null);
+
+useIntersectionObserver(
+    sentinel,
+    ([entry]) => {
+        if (entry?.isIntersecting) {
+            loadMore();
+        }
+    },
+    { rootMargin: '400px' },
+);
+
+const hasActiveFilters = computed(
+    () =>
+        search.value.trim() !== '' ||
+        spotlight.value !== null ||
+        language.value !== null ||
+        favorite.value ||
+        sort.value !== 'recent',
+);
+
+function resetFilters(): void {
+    search.value = defaultShelfQuery.search;
+    spotlight.value = defaultShelfQuery.spotlight;
+    language.value = defaultShelfQuery.language;
+    sort.value = defaultShelfQuery.sort;
+    favorite.value = defaultShelfQuery.favorite;
+}
 
 const pageTitle = computed(() => `Rak buku ${props.profile.name}`);
 
@@ -96,37 +188,70 @@ const structuredData = computed(() => [
         />
 
         <template v-if="hasBooks">
-            <ShelfFilterBar
-                :filters="props.filters"
+            <ShelfSpotlightBar
+                :search="search"
+                :spotlight="spotlight"
+                :language="language"
+                :sort="sort"
+                :favorite="favorite"
                 :statuses="props.statuses"
                 :languages="props.languages"
                 :sort-options="props.sortOptions"
                 :status-counts="props.statusCounts"
-                :url="shelfUrl"
-                :total="props.filteredTotal"
+                :shown="renderedBooks.length"
+                :total="visibleBooks.length"
+                @update:search="search = $event"
+                @update:spotlight="spotlight = $event"
+                @update:language="language = $event"
+                @update:sort="sort = $event"
+                @update:favorite="favorite = $event"
+                @reset="resetFilters"
             />
         </template>
 
         <ShelfRenderer
-            v-if="props.rows.length > 0"
+            v-if="showShelf"
             :theme="props.profile.theme"
-            :rows="props.rows"
+            :books="renderedBooks"
+            :spotlight="spotlight"
+            :favorite-spotlight="favorite"
             :owner="props.isOwner"
         />
 
-        <EmptyState
-            v-else-if="hasActiveFilters"
-            title="Tidak ada buku yang cocok"
-            description="Coba ubah filter atau kata kunci pencarianmu."
-            :icon="SearchX"
+        <div
+            v-if="showShelf && hasMore"
+            ref="sentinel"
+            class="flex justify-center pt-2"
         >
-            <Button as-child variant="outline">
-                <Link :href="shelfUrl">Bersihkan filter</Link>
+            <Button type="button" variant="outline" @click="loadMore">
+                Muat lebih banyak ({{ visibleBooks.length - renderedBooks.length }} lagi)
+            </Button>
+        </div>
+
+        <EmptyState
+            v-if="showNoFavorite"
+            title="Belum ada buku favorit"
+            description="Ketuk ikon hati pada buku untuk menandainya sebagai favorit."
+            :icon="Heart"
+        >
+            <Button type="button" variant="outline" @click="resetFilters">
+                Tampilkan semua buku
             </Button>
         </EmptyState>
 
         <EmptyState
-            v-else-if="!hasBooks"
+            v-if="showNoMatch"
+            title="Tidak ada buku yang cocok"
+            description="Coba ubah filter atau kata kunci pencarianmu."
+            :icon="SearchX"
+        >
+            <Button type="button" variant="outline" @click="resetFilters">
+                Bersihkan filter
+            </Button>
+        </EmptyState>
+
+        <EmptyState
+            v-if="!hasBooks"
             title="Rak ini masih kosong"
             :description="
                 props.isOwner
@@ -139,14 +264,5 @@ const structuredData = computed(() => [
                 <Link :href="create()">Tambah buku</Link>
             </Button>
         </EmptyState>
-
-        <p
-            v-if="isTruncated"
-            class="rounded-2xl border border-border/70 bg-card p-4 text-center text-sm text-muted-foreground"
-        >
-            Menampilkan {{ formatNumber(props.limit) }} dari
-            {{ formatNumber(props.filteredTotal) }} buku. Gunakan filter di atas
-            untuk mempersempit pilihan.
-        </p>
     </div>
 </template>

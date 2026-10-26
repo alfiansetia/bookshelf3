@@ -10,13 +10,10 @@ import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { statusColor } from '@/lib/statusStyles';
 import { cn } from '@/lib/utils';
 import { edit as editShelf, update } from '@/routes/shelf';
 import type {
-    Book,
-    BookStatus,
-    ShelfRow,
+    ShelfBook,
     ShelfSummary,
     ShelfTheme,
     ShelfThemeOption,
@@ -35,41 +32,12 @@ const props = defineProps<{
     shelfUrl: string | null;
     username: string | null;
     stats: ShelfSummary;
-    previewBooks: Book[];
+    previewBooks: ShelfBook[];
 }>();
-
-const statusIconNames: Record<BookStatus, string> = {
-    want_to_read: 'Bookmark',
-    reading: 'BookOpen',
-    finished: 'BookCheck',
-    on_hold: 'Pause',
-    dropped: 'BookX',
-};
 
 const form = useForm({
     theme: props.selectedTheme,
     is_public: props.isPublic,
-});
-
-const previewRows = computed<ShelfRow[]>(() => {
-    const books = props.previewBooks;
-
-    if (books.length === 0) {
-        return [];
-    }
-
-    const label = books[0].status_label;
-
-    return [
-        {
-            status: books[0].status,
-            label,
-            color: statusColor(books[0].status),
-            icon: statusIconNames[books[0].status],
-            total: books.length,
-            books,
-        },
-    ];
 });
 
 const activeTheme = computed(
@@ -121,7 +89,7 @@ function save(): void {
 
                 <ShelfRenderer
                     :theme="form.theme"
-                    :rows="previewRows"
+                    :books="previewBooks"
                     owner
                     class="min-h-40"
                 >

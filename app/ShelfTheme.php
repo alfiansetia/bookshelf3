@@ -11,6 +11,7 @@ enum ShelfTheme: string
     case Minimal = 'minimal';
     case Neon = 'neon';
     case Cozy = 'cozy';
+    case Story = 'story';
 
     /**
      * Nama gaya rak.
@@ -22,6 +23,7 @@ enum ShelfTheme: string
             self::Minimal => 'Rak Minimalis',
             self::Neon => 'Rak Neon',
             self::Cozy => 'Rak Kafe Hangat',
+            self::Story => 'Rak Reel Cerita',
         };
     }
 
@@ -35,6 +37,7 @@ enum ShelfTheme: string
             self::Minimal => 'Daftar bacaan rapi seperti indeks buku, tanpa sampul besar.',
             self::Neon => 'Kisi kotak gelap yang menyala seperti panel digital.',
             self::Cozy => 'Papan tempel berisi polaroid buku bernuansa kafe.',
+            self::Story => 'Kartu cerita vertikal full-cover yang digeser seperti story, mobile-first.',
         };
     }
 
@@ -48,6 +51,7 @@ enum ShelfTheme: string
             self::Minimal => 'Daftar indeks bergaris tipis: nomor urut, sampul mungil, judul, penulis, tahun, dan rating. Dua kolom di desktop, satu kolom di ponsel.',
             self::Neon => 'Latar gelap dengan kisi kotak berisi sampul penuh dan pendar warna. Di ponsel kotak berubah jadi kartu yang tersusun ke bawah.',
             self::Cozy => 'Kartu polaroid bersudut miring ditempel di latar kertas hangat, tersusun beberapa kolom di desktop dan satu kolom di ponsel.',
+            self::Story => 'Setiap status jadi strip reel horizontal: kartu 9:14 full-cover dengan judul di atas gradient, digeser dengan snap. Sama di ponsel dan desktop, tanpa pratinjau hover.',
         };
     }
 
@@ -56,7 +60,7 @@ enum ShelfTheme: string
      */
     public function isDark(): bool
     {
-        return $this === self::Neon;
+        return $this === self::Neon || $this === self::Story;
     }
 
     /**
@@ -69,6 +73,7 @@ enum ShelfTheme: string
             self::Minimal => '#0f172a',
             self::Neon => '#22d3ee',
             self::Cozy => '#e08a9a',
+            self::Story => '#f59e0b',
         };
     }
 

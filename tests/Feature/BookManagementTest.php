@@ -141,6 +141,40 @@ it('melarang pengguna mengubah atau menghapus buku milik orang lain', function (
     expect($book->fresh())->not->toBeNull();
 });
 
+it('menyimpan warna sampul pilihan pemilik', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('books.store'), [
+            'title' => 'Buku Warna',
+            'author' => 'Penulis',
+            'language' => 'id',
+            'status' => 'reading',
+            'cover_color' => '#1d4ed8',
+        ])
+        ->assertRedirect(route('books.index'));
+
+    $book = Book::query()->whereBelongsTo($user)->sole();
+
+    expect($book->cover_color)->toBe('#1d4ed8');
+});
+
+it('menolak warna sampul yang bukan hex', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('books.store'), [
+            'title' => 'Buku Warna',
+            'author' => 'Penulis',
+            'language' => 'id',
+            'status' => 'reading',
+            'cover_color' => 'biru',
+        ])
+        ->assertSessionHasErrors('cover_color');
+
+    $this->assertDatabaseCount('books', 0);
+});
+
 it('menghapus buku milik sendiri', function () {
     $user = User::factory()->create();
     $book = Book::factory()->for($user)->create();

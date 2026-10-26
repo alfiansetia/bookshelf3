@@ -38,7 +38,7 @@ class ShelfController extends Controller
             'shelfUrl' => $user->hasUsername() ? route('shelf.show', $user->username) : null,
             'username' => $user->username,
             'stats' => $this->shelfSummary(clone $base),
-            'previewBooks' => $previewBooks->map(fn (Book $book): array => BookResource::forShelf($book))->all(),
+            'previewBooks' => $previewBooks->map(fn (Book $book): array => BookResource::forShelfCard($book))->all(),
         ]);
     }
 

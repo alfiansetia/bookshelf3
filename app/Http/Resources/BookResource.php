@@ -37,6 +37,7 @@ class BookResource extends JsonResource
             'synopsis' => $this->synopsis,
             'review' => $this->review,
             'cover_url' => $this->cover_url,
+            'cover_color' => $this->cover_color,
             'total_pages' => $this->total_pages,
             'started_at' => $this->started_at?->toDateString(),
             'finished_at' => $this->finished_at?->toDateString(),
@@ -65,6 +66,31 @@ class BookResource extends JsonResource
     public static function forShelf(Book $book): array
     {
         return (new self($book))->resolve();
+    }
+
+    /**
+     * Bentuk kartu rak yang ramping untuk daftar FE: tanpa sinopsis,
+     * review, dan field berat lain yang tidak dipakai kartu.
+     *
+     * @return array<string, mixed>
+     */
+    public static function forShelfCard(Book $book): array
+    {
+        $data = self::forShelf($book);
+
+        unset(
+            $data['slug'],
+            $data['publisher'],
+            $data['synopsis'],
+            $data['review'],
+            $data['total_pages'],
+            $data['started_at'],
+            $data['updated_at'],
+            $data['owner'],
+            $data['can'],
+        );
+
+        return $data;
     }
 
     /**

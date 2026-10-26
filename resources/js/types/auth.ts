@@ -10,7 +10,7 @@ export type User = {
     avatar_url: string | null;
     tagline: string | null;
     bio: string | null;
-    theme: 'wood' | 'minimal' | 'neon' | 'cozy';
+    theme: 'wood' | 'minimal' | 'neon' | 'cozy' | 'story';
     is_public: boolean;
     blocked_at: string | null;
     blocked_reason: string | null;
