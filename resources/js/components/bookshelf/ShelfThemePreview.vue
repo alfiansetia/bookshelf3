@@ -44,6 +44,11 @@ const covers: Record<ShelfTheme, string[]> = {
         'bg-gradient-to-br from-slate-300 to-slate-500 dark:from-slate-600 dark:to-slate-800',
         'bg-gradient-to-br from-sky-300 to-indigo-600',
     ],
+    stack: [
+        'bg-gradient-to-br from-orange-600 to-amber-900',
+        'bg-gradient-to-br from-emerald-600 to-teal-900',
+        'bg-gradient-to-br from-sky-500 to-blue-900',
+    ],
 };
 
 /** Tinggi punggung tiruan untuk pratinjau rak kayu. */
@@ -206,7 +211,10 @@ function cover(index: number): string {
         </div>
 
         <!-- Kartu katalog: kartu bernomor dengan lubang dan stempel. -->
-        <div v-else class="flex min-h-20 items-stretch justify-center gap-1.5">
+        <div
+            v-else-if="props.theme === 'catalog'"
+            class="flex min-h-20 items-stretch justify-center gap-1.5"
+        >
             <span
                 v-for="index in 2"
                 :key="index"
@@ -227,6 +235,31 @@ function cover(index: number): string {
                 <span
                     class="mt-0.5 block h-1 w-2/3 rounded-full bg-shelf-muted/40"
                 />
+            </span>
+        </div>
+
+        <!-- Tumpukan meja: balok rebahan di nampan, bukan papan rak. -->
+        <div v-else class="flex min-h-20 flex-col justify-end">
+            <span
+                class="block rounded-[6px] border border-black/10 p-1.5 shadow-inner dark:border-white/10"
+                :style="{ backgroundColor: 'var(--shelf-surface-2)' }"
+            >
+                <span
+                    v-for="index in 3"
+                    :key="index"
+                    class="mb-1 flex items-center gap-1.5 rounded-[4px] p-1 last:mb-0"
+                    :style="{
+                        backgroundColor: 'var(--shelf-surface)',
+                        marginLeft: `${(index - 1) * 4}px`,
+                    }"
+                >
+                    <span :class="cn('h-5 w-1 rounded-[1px]', cover(index - 1))" />
+                    <span :class="cn('h-6 w-4 rounded-[2px]', cover(index - 1))" />
+                    <span class="flex-1 space-y-1">
+                        <span class="block h-1 w-3/4 rounded-full bg-shelf-ink/25" />
+                        <span class="block h-1 w-1/2 rounded-full bg-shelf-muted/40" />
+                    </span>
+                </span>
             </span>
         </div>
     </div>

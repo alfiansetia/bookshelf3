@@ -11,7 +11,8 @@ export type ShelfTheme =
     | 'neon'
     | 'cozy'
     | 'story'
-    | 'catalog';
+    | 'catalog'
+    | 'stack';
 
 export type ShelfVisibility = 'public' | 'unlisted' | 'private';
 

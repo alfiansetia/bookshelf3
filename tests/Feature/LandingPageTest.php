@@ -19,7 +19,7 @@ it('menampilkan halaman depan beserta rak unggulan', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Welcome')
-            ->has('themes', 6)
+            ->has('themes', 7)
             ->has('statuses', 5)
             ->where('numbers.readers', 1)
             ->has('featuredShelves', 1)

@@ -13,6 +13,7 @@ enum ShelfTheme: string
     case Cozy = 'cozy';
     case Story = 'story';
     case Catalog = 'catalog';
+    case Stack = 'stack';
 
     /**
      * Nama gaya rak.
@@ -26,6 +27,7 @@ enum ShelfTheme: string
             self::Cozy => 'Rak Kafe Hangat',
             self::Story => 'Rak Reel Cerita',
             self::Catalog => 'Kartu Katalog',
+            self::Stack => 'Tumpukan Meja',
         };
     }
 
@@ -41,6 +43,7 @@ enum ShelfTheme: string
             self::Cozy => 'Papan tempel berisi polaroid buku bernuansa kafe.',
             self::Story => 'Kartu cerita vertikal full-cover yang digeser seperti story, mobile-first.',
             self::Catalog => 'Kartu katalog perpustakaan bernomor dengan stempel status, mobile-first.',
+            self::Stack => 'Buku ditumpuk rebahan seperti di meja, 4 buku per tumpukan.',
         };
     }
 
@@ -56,6 +59,7 @@ enum ShelfTheme: string
             self::Cozy => 'Kartu polaroid bersudut miring ditempel di latar kertas hangat, tersusun beberapa kolom di desktop dan dua kolom di ponsel.',
             self::Story => 'Setiap status jadi strip reel horizontal: kartu 9:14 full-cover dengan judul di atas gradient, digeser dengan snap. Sama di ponsel dan desktop, tanpa pratinjau hover.',
             self::Catalog => 'Kartu katalog ala perpustakaan: nomor urut, sampul kecil, judul, penulis, dan stempel status. Satu kolom di ponsel, dua kolom di tablet, tiga kolom di desktop.',
+            self::Stack => 'Buku ditumpuk mendatar 4 per nampan meja: strip warna tiap buku, sampul kecil, judul, rating, dan tepi halaman. Satu kolom di ponsel, dua kolom nampan di desktop.',
         };
     }
 
@@ -79,6 +83,7 @@ enum ShelfTheme: string
             self::Cozy => '#e08a9a',
             self::Story => '#f59e0b',
             self::Catalog => '#4f46e5',
+            self::Stack => '#c2410c',
         };
     }
 

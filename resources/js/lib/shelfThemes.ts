@@ -3,6 +3,7 @@ import CatalogShelf from '@/components/bookshelf/shelves/CatalogShelf.vue';
 import CozyShelf from '@/components/bookshelf/shelves/CozyShelf.vue';
 import MinimalShelf from '@/components/bookshelf/shelves/MinimalShelf.vue';
 import NeonShelf from '@/components/bookshelf/shelves/NeonShelf.vue';
+import StackShelf from '@/components/bookshelf/shelves/StackShelf.vue';
 import StoryShelf from '@/components/bookshelf/shelves/StoryShelf.vue';
 import WoodShelf from '@/components/bookshelf/shelves/WoodShelf.vue';
 import type { ShelfTheme } from '@/types';
@@ -17,6 +18,7 @@ export const shelfThemeComponents: Record<ShelfTheme, Component> = {
     cozy: CozyShelf,
     story: StoryShelf,
     catalog: CatalogShelf,
+    stack: StackShelf,
 };
 
 /**
@@ -36,6 +38,7 @@ export const shelfThemeSurface: Record<ShelfTheme, string> = {
     cozy: 'bg-[#fff7f3] dark:bg-[#171110]',
     story: 'bg-[#0f0d18]',
     catalog: 'bg-[#efece3] dark:bg-[#14120d]',
+    stack: 'bg-[#faf6ef] dark:bg-[#171310]',
 };
 
 /**
