@@ -39,6 +39,11 @@ const covers: Record<ShelfTheme, string[]> = {
         'bg-gradient-to-br from-violet-500/90 to-slate-900',
         'bg-gradient-to-br from-emerald-400/90 to-slate-900',
     ],
+    catalog: [
+        'bg-gradient-to-br from-indigo-400 to-indigo-800',
+        'bg-gradient-to-br from-slate-300 to-slate-500 dark:from-slate-600 dark:to-slate-800',
+        'bg-gradient-to-br from-sky-300 to-indigo-600',
+    ],
 };
 
 /** Tinggi punggung tiruan untuk pratinjau rak kayu. */
@@ -168,7 +173,10 @@ function cover(index: number): string {
         </div>
 
         <!-- Rak reel cerita: kartu vertikal full-cover yang mengintip. -->
-        <div v-else class="flex min-h-20 items-end justify-center gap-1.5">
+        <div
+            v-else-if="props.theme === 'story'"
+            class="flex min-h-20 items-end justify-center gap-1.5"
+        >
             <span
                 v-for="index in 3"
                 :key="index"
@@ -194,6 +202,31 @@ function cover(index: number): string {
                     <span class="block h-1 w-full rounded-full bg-white/85" />
                     <span class="block h-1 w-2/3 rounded-full bg-white/50" />
                 </span>
+            </span>
+        </div>
+
+        <!-- Kartu katalog: kartu bernomor dengan lubang dan stempel. -->
+        <div v-else class="flex min-h-20 items-stretch justify-center gap-1.5">
+            <span
+                v-for="index in 2"
+                :key="index"
+                class="relative block w-20 rounded-[4px] border border-black/10 bg-white p-1.5 shadow-sm dark:border-white/10 dark:bg-neutral-900"
+            >
+                <span
+                    class="absolute -top-1 left-1/2 block size-1.5 -translate-x-1/2 rounded-full bg-shelf-surface ring-1 ring-black/15"
+                />
+                <span
+                    class="mb-1 block h-1 w-1/3 rounded-full bg-shelf-muted/50"
+                />
+                <span
+                    :class="cn('block aspect-2/3 w-2/3 rounded-[2px]', cover(index - 1))"
+                />
+                <span
+                    class="mt-1 block h-1 w-full rounded-full bg-shelf-ink/25"
+                />
+                <span
+                    class="mt-0.5 block h-1 w-2/3 rounded-full bg-shelf-muted/40"
+                />
             </span>
         </div>
     </div>

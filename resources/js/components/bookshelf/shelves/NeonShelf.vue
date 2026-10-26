@@ -92,48 +92,65 @@ const props = withDefaults(
             </component>
         </div>
 
-        <!-- Mobile: kartu tersusun ke bawah. -->
-        <ul class="space-y-2 sm:hidden">
-            <li v-for="book in props.books" :key="book.id">
-                <component
-                    :is="shelfBookHref(book, props.owner) ? Link : 'div'"
-                    :href="shelfBookHref(book, props.owner) ?? undefined"
-                    :class="[
-                        'group flex items-center gap-3 rounded-shelf border border-shelf-accent/20 bg-shelf-surface-2 p-2 transition duration-300 ease-out hover:border-shelf-accent/60',
-                        spotlightDim(book, props.spotlight, props.favoriteSpotlight),
-                        spotlightActive(book, props.spotlight, props.favoriteSpotlight),
-                    ]"
-                >
-                    <BookCover
-                        :book="book"
-                        size="xs"
-                        :spine="false"
-                        class="rounded-[3px]"
-                    />
+        <!-- Mobile: kisi 2 kolom kartu mini, desktop tidak berubah. -->
+        <div class="grid grid-cols-2 gap-2 sm:hidden">
+            <component
+                :is="shelfBookHref(book, props.owner) ? Link : 'div'"
+                v-for="book in props.books"
+                :key="book.id"
+                :href="shelfBookHref(book, props.owner) ?? undefined"
+                :class="[
+                    'group relative block aspect-3/4 overflow-hidden rounded-shelf border border-shelf-accent/25 bg-shelf-surface-2 transition duration-300 ease-out active:scale-[0.98]',
+                    spotlightDim(book, props.spotlight, props.favoriteSpotlight),
+                    spotlightActive(book, props.spotlight, props.favoriteSpotlight),
+                ]"
+            >
+                <BookCover
+                    :book="book"
+                    size="md"
+                    :spine="false"
+                    class="absolute inset-0 h-full w-full rounded-none border-0"
+                />
 
-                    <span class="min-w-0 flex-1">
-                        <span
-                            class="block truncate text-[13px] font-semibold text-shelf-ink"
-                        >
-                            {{ book.title }}
-                        </span>
-                        <span
-                            class="block truncate font-mono text-[10px] text-shelf-accent"
-                        >
-                            {{ book.author }}
-                        </span>
+                <span
+                    class="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_4px)] mix-blend-screen"
+                    aria-hidden="true"
+                />
+
+                <span
+                    class="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-shelf-surface via-shelf-surface/80 to-transparent"
+                    aria-hidden="true"
+                />
+
+                <span class="absolute inset-x-0 bottom-0 p-2">
+                    <span
+                        class="block truncate text-[11px] font-semibold text-shelf-ink"
+                    >
+                        {{ book.title }}
                     </span>
-
+                    <span
+                        class="mt-0.5 block truncate font-mono text-[9px] text-shelf-accent"
+                    >
+                        {{ book.author }}
+                    </span>
                     <span
                         v-if="book.rating"
-                        class="flex shrink-0 items-center gap-1 font-mono text-[10px] text-shelf-glow"
+                        class="mt-1 flex items-center gap-1 font-mono text-[9px] text-shelf-glow"
                     >
-                        <Star class="size-3 fill-current" />
+                        <Star class="size-2.5 fill-current" />
                         {{ book.rating }}
                     </span>
-                </component>
-            </li>
-        </ul>
+                </span>
+
+                <span
+                    v-if="book.is_favorite"
+                    class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full border border-shelf-glow/70 bg-shelf-surface/80 text-shelf-glow"
+                    aria-label="Buku favorit"
+                >
+                    <Heart class="size-2.5 fill-current" />
+                </span>
+            </component>
+        </div>
 
         <div class="relative mt-4" aria-hidden="true">
             <div class="shelf-plank h-1.5 rounded-full" />

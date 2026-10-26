@@ -12,6 +12,7 @@ enum ShelfTheme: string
     case Neon = 'neon';
     case Cozy = 'cozy';
     case Story = 'story';
+    case Catalog = 'catalog';
 
     /**
      * Nama gaya rak.
@@ -24,6 +25,7 @@ enum ShelfTheme: string
             self::Neon => 'Rak Neon',
             self::Cozy => 'Rak Kafe Hangat',
             self::Story => 'Rak Reel Cerita',
+            self::Catalog => 'Kartu Katalog',
         };
     }
 
@@ -38,6 +40,7 @@ enum ShelfTheme: string
             self::Neon => 'Kisi kotak gelap yang menyala seperti panel digital.',
             self::Cozy => 'Papan tempel berisi polaroid buku bernuansa kafe.',
             self::Story => 'Kartu cerita vertikal full-cover yang digeser seperti story, mobile-first.',
+            self::Catalog => 'Kartu katalog perpustakaan bernomor dengan stempel status, mobile-first.',
         };
     }
 
@@ -49,9 +52,10 @@ enum ShelfTheme: string
         return match ($this) {
             self::Wood => 'Di desktop buku berdiri berdampingan di atas papan kayu dengan judul di punggungnya, lengkap dengan kartu pratinjau saat disorot. Di ponsel buku tersusun ke bawah dengan sampul kecil.',
             self::Minimal => 'Daftar indeks bergaris tipis: nomor urut, sampul mungil, judul, penulis, tahun, dan rating. Dua kolom di desktop, satu kolom di ponsel.',
-            self::Neon => 'Latar gelap dengan kisi kotak berisi sampul penuh dan pendar warna. Di ponsel kotak berubah jadi kartu yang tersusun ke bawah.',
-            self::Cozy => 'Kartu polaroid bersudut miring ditempel di latar kertas hangat, tersusun beberapa kolom di desktop dan satu kolom di ponsel.',
+            self::Neon => 'Latar gelap dengan kisi kotak berisi sampul penuh dan pendar warna. Di ponsel tampil sebagai kisi 2 kolom yang padat.',
+            self::Cozy => 'Kartu polaroid bersudut miring ditempel di latar kertas hangat, tersusun beberapa kolom di desktop dan dua kolom di ponsel.',
             self::Story => 'Setiap status jadi strip reel horizontal: kartu 9:14 full-cover dengan judul di atas gradient, digeser dengan snap. Sama di ponsel dan desktop, tanpa pratinjau hover.',
+            self::Catalog => 'Kartu katalog ala perpustakaan: nomor urut, sampul kecil, judul, penulis, dan stempel status. Satu kolom di ponsel, dua kolom di tablet, tiga kolom di desktop.',
         };
     }
 
@@ -74,6 +78,7 @@ enum ShelfTheme: string
             self::Neon => '#22d3ee',
             self::Cozy => '#e08a9a',
             self::Story => '#f59e0b',
+            self::Catalog => '#4f46e5',
         };
     }
 

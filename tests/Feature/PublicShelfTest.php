@@ -111,4 +111,4 @@ it('menampilkan tema rak sesuai pilihan pemiliknya', function (string $theme) {
             ->component('public/Profile')
             ->where('profile.theme', $theme),
         );
-})->with(['wood', 'minimal', 'neon', 'cozy', 'story']);
+})->with(['wood', 'minimal', 'neon', 'cozy', 'story', 'catalog']);

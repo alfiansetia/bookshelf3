@@ -188,7 +188,7 @@
 
 /*
   ┌─────────────────────────────────────────────────────────┐
-  │ Token gaya rak buku (4 tema)                            │
+  │ Token gaya rak buku (6 tema)                            │
   │ Dipakai lewat atribut data-shelf-theme pada wrapper rak. │
   └─────────────────────────────────────────────────────────┘
 */
@@ -318,6 +318,31 @@
     --shelf-accent: hsl(38 96% 62%);
     --shelf-accent-soft: hsl(38 60% 15%);
     --shelf-glow: hsl(16 90% 62%);
+}
+
+/* 6. Kartu Katalog */
+[data-shelf-theme='catalog'] {
+    --shelf-plank: hsl(45 20% 74%);
+    --shelf-plank-edge: hsl(42 18% 60%);
+    --shelf-surface: hsl(48 28% 94%);
+    --shelf-surface-2: hsl(0 0% 100%);
+    --shelf-ink: hsl(30 25% 15%);
+    --shelf-muted: hsl(35 12% 45%);
+    --shelf-accent: hsl(243 60% 52%);
+    --shelf-accent-soft: hsl(243 60% 94%);
+    --shelf-glow: transparent;
+    --shelf-radius: 0.375rem;
+}
+
+.dark [data-shelf-theme='catalog'] {
+    --shelf-plank: hsl(40 14% 30%);
+    --shelf-plank-edge: hsl(38 12% 20%);
+    --shelf-surface: hsl(36 12% 11%);
+    --shelf-surface-2: hsl(36 10% 15%);
+    --shelf-ink: hsl(45 25% 94%);
+    --shelf-muted: hsl(40 10% 66%);
+    --shelf-accent: hsl(243 80% 72%);
+    --shelf-accent-soft: hsl(243 30% 20%);
 }
 
 @layer base {

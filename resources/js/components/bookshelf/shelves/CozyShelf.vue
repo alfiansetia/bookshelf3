@@ -26,25 +26,25 @@ const tilts = ['-1.4deg', '0.9deg', '-0.6deg', '1.2deg'];
 </script>
 
 <template>
-    <!-- Mobile satu kolom ke bawah, desktop jadi papan tempel beberapa kolom. -->
-    <div class="columns-1 gap-5 sm:columns-2 xl:columns-3">
+    <!-- Mobile dua kolom berdampingan, tablet ke atas tetap papan tempel beberapa kolom. -->
+    <div class="columns-2 gap-3 sm:columns-2 sm:gap-5 xl:columns-3">
         <div
             v-for="(book, index) in props.books"
             :key="book.id"
-            class="mb-5 break-inside-avoid"
+            class="mb-3 break-inside-avoid sm:mb-5"
         >
             <component
                 :is="shelfBookHref(book, props.owner) ? Link : 'div'"
                 :href="shelfBookHref(book, props.owner) ?? undefined"
                 :class="[
-                    'group relative block rotate-[var(--card-tilt)] rounded-shelf border border-black/5 bg-shelf-surface-2 p-2.5 pb-3 shadow-[0_18px_30px_-24px_rgba(90,50,30,0.9)] transition duration-300 ease-out hover:-translate-y-1.5 hover:rotate-0 dark:border-white/10',
+                    'group relative block rotate-[var(--card-tilt)] rounded-shelf border border-black/5 bg-shelf-surface-2 p-2 pb-2.5 shadow-[0_18px_30px_-24px_rgba(90,50,30,0.9)] transition duration-300 ease-out hover:-translate-y-1.5 hover:rotate-0 sm:p-2.5 sm:pb-3 dark:border-white/10',
                     spotlightDim(book, props.spotlight, props.favoriteSpotlight),
                     spotlightActive(book, props.spotlight, props.favoriteSpotlight),
                 ]"
                 :style="{ '--card-tilt': tilts[index % tilts.length] }"
             >
                 <span
-                    class="absolute -top-2 left-1/2 h-4 w-14 -translate-x-1/2 -rotate-3 rounded-[2px] bg-shelf-accent-soft/80 shadow-sm"
+                    class="absolute -top-2 left-1/2 h-4 w-10 -translate-x-1/2 -rotate-3 rounded-[2px] bg-shelf-accent-soft/80 shadow-sm sm:w-14"
                     aria-hidden="true"
                 />
 
@@ -65,9 +65,9 @@ const tilts = ['-1.4deg', '0.9deg', '-0.6deg', '1.2deg'];
                     </span>
                 </span>
 
-                <span class="mt-3 block px-1">
+                <span class="mt-2 block px-0.5 sm:mt-3 sm:px-1">
                     <span
-                        class="block font-display text-base leading-snug break-words text-shelf-ink"
+                        class="block font-display text-sm leading-snug break-words text-shelf-ink sm:text-base"
                         :title="book.title"
                     >
                         {{ book.title }}

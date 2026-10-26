@@ -5,7 +5,13 @@ export type BookStatus =
     | 'on_hold'
     | 'dropped';
 
-export type ShelfTheme = 'wood' | 'minimal' | 'neon' | 'cozy' | 'story';
+export type ShelfTheme =
+    | 'wood'
+    | 'minimal'
+    | 'neon'
+    | 'cozy'
+    | 'story'
+    | 'catalog';
 
 export type ShelfVisibility = 'public' | 'unlisted' | 'private';
 
