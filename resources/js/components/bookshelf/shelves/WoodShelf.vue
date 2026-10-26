@@ -41,14 +41,14 @@ const isDesktop = useMediaQuery('(min-width: 768px)');
 const heights = [15.5, 13.75, 16.5, 14.25, 17, 13];
 
 /**
- * Bagi buku menjadi beberapa papan: 20 per papan di desktop,
- * 8 per papan di mobile. Kelebihan muat tetap rapi karena
+ * Bagi buku menjadi beberapa papan: 18 per papan di desktop,
+ * 7 per papan di mobile. Kelebihan muat tetap rapi karena
  * flex-wrap menyusunnya ke baris atas papan yang sama.
  * Tinggi punggung diskala 0.68 di mobile, penuh di desktop.
  * Warna punggung ikut warna tiap buku (pilihan pemilik atau acak stabil).
  */
 const planks = computed<Spine[][]>(() => {
-    const perPlank = isDesktop.value ? 20 : 8;
+    const perPlank = isDesktop.value ? 18 : 7;
     const scale = isDesktop.value ? 1 : 0.68;
     const result: Spine[][] = [];
 
