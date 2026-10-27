@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Storage;
  * @property float|null $rating
  * @property string|null $synopsis
  * @property string|null $review
+ * @property string|null $review_url
  * @property string|null $cover_path
  * @property string|null $cover_color
  * @property int|null $total_pages
@@ -42,7 +43,7 @@ use Illuminate\Support\Facades\Storage;
  */
 #[Fillable([
     'user_id', 'title', 'slug', 'author', 'publisher', 'published_year', 'language',
-    'status', 'rating', 'synopsis', 'review', 'cover_path', 'cover_color', 'total_pages',
+    'status', 'rating', 'synopsis', 'review', 'review_url', 'cover_path', 'cover_color', 'total_pages',
     'started_at', 'finished_at', 'is_favorite', 'position',
 ])]
 class Book extends Model

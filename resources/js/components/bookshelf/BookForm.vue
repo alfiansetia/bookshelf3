@@ -28,6 +28,7 @@ import {
     notLaterThanToday,
     required,
     rulesFor,
+    webAddress,
     wholeNumber,
 } from '@/lib/validation';
 import { index as booksIndex, store, update } from '@/routes/books';
@@ -64,6 +65,7 @@ const form = useForm<BookFormValues>({
     rating: props.book?.rating ?? null,
     synopsis: props.book?.synopsis ?? '',
     review: props.book?.review ?? '',
+    review_url: props.book?.review_url ?? '',
     total_pages: props.book?.total_pages?.toString() ?? '',
     started_at: props.book?.started_at ?? '',
     finished_at: props.book?.finished_at ?? '',
@@ -108,6 +110,15 @@ const { validate } = useClientValidation(
             maxCharacters(synopsisMax, 'Sinopsis maksimal 6000 karakter.'),
         ],
         review: [maxCharacters(reviewMax, 'Review maksimal 6000 karakter.')],
+        review_url: [
+            maxCharacters(
+                2048,
+                'Link review terlalu panjang (maksimal 2048 karakter).',
+            ),
+            webAddress(
+                'Link review harus berupa tautan yang valid, misalnya https://instagram.com/p/....',
+            ),
+        ],
         total_pages: [
             wholeNumber(
                 1,
@@ -448,6 +459,22 @@ function submit(): void {
                     {{ form.review.length }}/{{ reviewMax }} karakter
                 </p>
                 <InputError :message="form.errors.review" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="review_url">Link review (opsional)</Label>
+                <Input
+                    id="review_url"
+                    v-model="form.review_url"
+                    type="url"
+                    inputmode="url"
+                    autocomplete="off"
+                    placeholder="https://instagram.com/p/..."
+                />
+                <p class="text-xs text-muted-foreground">
+                    Tautan ke post review kamu di Instagram, TikTok, atau blog. Tampil sebagai tombol di detail buku.
+                </p>
+                <InputError :message="form.errors.review_url" />
             </div>
 
             <div class="grid gap-5 sm:grid-cols-2">

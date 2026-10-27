@@ -13,6 +13,7 @@ import {
 } from '@lucide/vue';
 import BookCover from '@/components/bookshelf/BookCover.vue';
 import EmptyState from '@/components/bookshelf/EmptyState.vue';
+import InstagramEmbed from '@/components/bookshelf/InstagramEmbed.vue';
 import SectionHeading from '@/components/bookshelf/SectionHeading.vue';
 import ShareButton from '@/components/bookshelf/ShareButton.vue';
 import StarRating from '@/components/bookshelf/StarRating.vue';
@@ -73,6 +74,32 @@ const metas = computed(() =>
         (item): item is { icon: typeof BookOpen; label: string } =>
             item !== null,
     ),
+);
+
+const reviewLinkLabel = computed(() => {
+    const url = (props.book.review_url ?? '').toLowerCase();
+
+    if (url.includes('instagram.com')) {
+        return 'Lihat review di Instagram';
+    }
+
+    if (url.includes('tiktok.com')) {
+        return 'Lihat review di TikTok';
+    }
+
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        return 'Tonton review di YouTube';
+    }
+
+    if (url.includes('goodreads.com')) {
+        return 'Lihat review di Goodreads';
+    }
+
+    return 'Lihat review lengkap';
+});
+
+const isInstagramReview = computed(() =>
+    /instagram\.com\/(p|reel|reels?)\//i.test(props.book.review_url ?? ''),
 );
 
 const pageTitle = computed(
@@ -230,7 +257,7 @@ const structuredData = computed(() => [
                 </section>
 
                 <section
-                    v-if="props.book.review"
+                    v-if="props.book.review || props.book.review_url"
                     class="space-y-3 rounded-2xl border border-border/70 bg-card p-5"
                 >
                     <h2
@@ -240,10 +267,30 @@ const structuredData = computed(() => [
                         Review & kesan
                     </h2>
                     <p
+                        v-if="props.book.review"
                         class="leading-relaxed text-pretty whitespace-pre-line text-foreground/90"
                     >
                         {{ props.book.review }}
                     </p>
+                    <InstagramEmbed
+                        v-if="isInstagramReview && props.book.review_url"
+                        :url="props.book.review_url"
+                    />
+                    <Button
+                        v-if="props.book.review_url"
+                        as-child
+                        variant="outline"
+                        size="sm"
+                    >
+                        <a
+                            :href="props.book.review_url"
+                            target="_blank"
+                            rel="noopener noreferrer ugc"
+                        >
+                            {{ reviewLinkLabel }}
+                            <ExternalLink class="size-3.5" />
+                        </a>
+                    </Button>
                 </section>
 
                 <section

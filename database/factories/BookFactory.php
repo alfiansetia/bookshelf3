@@ -34,6 +34,7 @@ class BookFactory extends Factory
             'rating' => $status === BookStatus::Finished ? fake()->randomElement([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]) : null,
             'synopsis' => fake()->paragraphs(2, true),
             'review' => fake()->optional(0.6)->paragraphs(2, true),
+            'review_url' => fake()->optional(0.3)->passthrough('https://instagram.com/p/'.fake()->bothify('**********')),
             'cover_path' => null,
             'total_pages' => fake()->numberBetween(90, 900),
             'started_at' => null,

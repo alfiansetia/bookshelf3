@@ -33,6 +33,7 @@ export type Book = {
     rating: number | null;
     synopsis: string | null;
     review: string | null;
+    review_url: string | null;
     cover_url: string | null;
     cover_color: string | null;
     total_pages: number | null;
@@ -64,6 +65,7 @@ export type BookFormValues = {
     rating: number | null;
     synopsis: string;
     review: string;
+    review_url: string;
     cover_color: string | null;
     total_pages: string;
     started_at: string;

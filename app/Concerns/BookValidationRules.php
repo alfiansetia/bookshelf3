@@ -17,6 +17,18 @@ trait BookValidationRules
         if ($this->input('cover_color') === '') {
             $this->merge(['cover_color' => null]);
         }
+
+        if (is_string($this->input('review_url'))) {
+            $reviewUrl = trim((string) $this->input('review_url'));
+
+            if ($reviewUrl === '') {
+                $this->merge(['review_url' => null]);
+            } else {
+                $this->merge([
+                    'review_url' => preg_match('#^https?://#i', $reviewUrl) === 1 ? $reviewUrl : 'https://'.$reviewUrl,
+                ]);
+            }
+        }
     }
 
     /**
@@ -41,6 +53,7 @@ trait BookValidationRules
             'rating' => ['nullable', 'numeric', 'min:'.$rating['min'], 'max:'.$rating['max'], 'multiple_of:'.$rating['step']],
             'synopsis' => ['nullable', 'string', 'max:'.$limits['synopsis'], new NoProfanity],
             'review' => ['nullable', 'string', 'max:'.$limits['review'], new NoProfanity],
+            'review_url' => ['nullable', 'string', 'max:2048', 'url'],
             'cover_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'total_pages' => ['nullable', 'integer', 'min:1', 'max:20000'],
             'started_at' => ['nullable', 'date', 'before_or_equal:today'],
@@ -91,6 +104,8 @@ trait BookValidationRules
                 $cover['max_source_height'],
             ),
             'cover_color.regex' => 'Warna sampul harus kode hex seperti #b4763a.',
+            'review_url.url' => 'Link review harus berupa tautan yang valid, misalnya https://instagram.com/p/....',
+            'review_url.max' => 'Link review terlalu panjang (maksimal 2048 karakter).',
             'total_pages.min' => 'Jumlah halaman minimal 1.',
             'started_at.before_or_equal' => 'Tanggal mulai tidak boleh melewati hari ini.',
             'finished_at.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',
