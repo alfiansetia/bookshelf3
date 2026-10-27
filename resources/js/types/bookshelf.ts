@@ -72,6 +72,7 @@ export type BookFormValues = {
     finished_at: string;
     is_favorite: boolean;
     cover: File | null;
+    cover_url: string;
     remove_cover: boolean;
 };
 

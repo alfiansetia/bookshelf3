@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\BookLookupController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\DashboardController;
@@ -121,6 +122,10 @@ Route::middleware(['auth', 'not.blocked'])->group(function () {
 
 Route::middleware(['auth', 'not.blocked', 'shelf.username'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('books/lookup', BookLookupController::class)
+        ->middleware('throttle:30,1')
+        ->name('books.lookup');
 
     Route::resource('books', BookController::class)->except('show');
 });

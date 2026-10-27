@@ -41,4 +41,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    'google_books' => [
+        'key' => env('GOOGLE_BOOKS_KEY'),
+    ],
+
 ];

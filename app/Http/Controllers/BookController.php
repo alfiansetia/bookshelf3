@@ -14,12 +14,27 @@ use App\UploadedImageType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class BookController extends Controller
 {
     use FiltersShelfBooks;
+
+    /**
+     * Host CDN katalog yang boleh dijadikan sumber sampul via cover_url.
+     *
+     * @var list<string>
+     */
+    private const COVER_URL_HOSTS = [
+        'covers.openlibrary.org',
+        'books.google.com',
+        'books.google.co.id',
+    ];
+
+    /** Batas isi unduhan sampul (sampul katalog umumnya puluhan KB). */
+    private const COVER_DOWNLOAD_MAX_BYTES = 8 * 1024 * 1024;
 
     public function __construct(private StoreUploadedImage $imageStore) {}
 
@@ -75,7 +90,7 @@ class BookController extends Controller
         }
 
         $book = $user->books()->create([
-            ...$request->safe()->except(['cover', 'remove_cover']),
+            ...$request->safe()->except(['cover', 'cover_url', 'remove_cover']),
             'cover_path' => $this->storeCover($request),
         ]);
 
@@ -105,7 +120,7 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book): RedirectResponse
     {
-        $attributes = $request->safe()->except(['cover', 'remove_cover']);
+        $attributes = $request->safe()->except(['cover', 'cover_url', 'remove_cover']);
         $newCover = $this->storeCover($request);
 
         if ($newCover !== null) {
@@ -158,20 +173,51 @@ class BookController extends Controller
             'languages' => Book::languageOptions(),
             'coverMaxKilobytes' => (int) config('bookshelf.cover.max_kilobytes'),
             'shelfUrl' => $user?->hasUsername() ? route('shelf.show', $user->username) : null,
+            'lookupUrl' => route('books.lookup'),
             'book' => null,
         ];
     }
 
     /**
-     * Simpan sampul yang diunggah, kembalikan null bila tidak ada berkas.
+     * Simpan sampul yang diunggah, unduhan dari URL pilihan lookup,
+     * atau null bila tidak ada. URL hanya diterima dari host CDN
+     * katalog buku yang dikenal (anti-SSRF).
      */
     private function storeCover(Request $request): ?string
     {
-        if (! $request->hasFile('cover')) {
+        if ($request->hasFile('cover')) {
+            return $this->imageStore->store($request->file('cover'), UploadedImageType::Cover);
+        }
+
+        $url = is_string($request->input('cover_url')) ? trim($request->input('cover_url')) : '';
+
+        if ($url === '' || ! in_array(mb_strtolower((string) parse_url($url, PHP_URL_HOST)), self::COVER_URL_HOSTS, true)) {
             return null;
         }
 
-        return $this->imageStore->store($request->file('cover'), UploadedImageType::Cover);
+        try {
+            $response = Http::timeout(12)->withUserAgent('Bookshelf3/1.0')->get($url);
+
+            if (! $response->ok()) {
+                return null;
+            }
+
+            $contentType = mb_strtolower($response->header('Content-Type'));
+
+            if (! str_starts_with($contentType, 'image/')) {
+                return null;
+            }
+
+            $body = $response->body();
+
+            if ($body === '' || strlen($body) > self::COVER_DOWNLOAD_MAX_BYTES) {
+                return null;
+            }
+
+            return $this->imageStore->storeContents($body, UploadedImageType::Cover);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

@@ -3,6 +3,9 @@ import { computed, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import { Heart, Loader2, Save, X } from '@lucide/vue';
 import CoverUploadField from '@/components/bookshelf/CoverUploadField.vue';
+import BookLookupField, {
+    type BookLookupItem,
+} from '@/components/bookshelf/BookLookupField.vue';
 import DatePicker from '@/components/bookshelf/DatePicker.vue';
 import StarRatingInput from '@/components/bookshelf/StarRatingInput.vue';
 import InputError from '@/components/InputError.vue';
@@ -46,6 +49,7 @@ const props = withDefaults(
         statuses: StatusOption[];
         languages: LanguageOption[];
         coverMaxKilobytes?: number;
+        lookupUrl: string;
     }>(),
     {
         book: null,
@@ -72,6 +76,7 @@ const form = useForm<BookFormValues>({
     is_favorite: props.book?.is_favorite ?? false,
     cover_color: props.book?.cover_color ?? null,
     cover: null,
+    cover_url: '',
     remove_cover: false,
 });
 
@@ -147,14 +152,49 @@ function onCoverChange(file: File | null): void {
     form.cover = file;
 
     if (file !== null) {
+        // Berkas manual menang atas URL sampul hasil lookup.
+        form.cover_url = '';
         form.remove_cover = false;
     }
 }
 
 function onCoverRemove(): void {
     form.cover = null;
+    form.cover_url = '';
     form.remove_cover = true;
     existingCover.value = null;
+}
+
+/**
+ * Isi form dari hasil lookup. Sampul hanya dikirim sebagai URL
+ * (pratinjau tampil langsung); backend yang mengunduhnya saat simpan
+ * karena fetch browser diblokir CORS oleh CDN katalog.
+ */
+function applyLookup(item: BookLookupItem): void {
+    form.title = item.title;
+    form.author = item.author ?? form.author;
+    form.publisher = item.publisher ?? '';
+
+    form.published_year = item.published_year
+        ? String(item.published_year)
+        : '';
+    form.total_pages = item.total_pages ? String(item.total_pages) : '';
+
+    if (
+        item.language !== null &&
+        props.languages.some((l) => l.value === item.language)
+    ) {
+        form.language = item.language;
+    }
+
+    const remoteCover = item.cover_large_url ?? item.cover_url ?? '';
+
+    if (remoteCover !== '') {
+        form.cover = null;
+        form.cover_url = remoteCover;
+        form.remove_cover = false;
+        existingCover.value = remoteCover;
+    }
 }
 
 function submit(): void {
@@ -186,6 +226,12 @@ function submit(): void {
                 </p>
             </div>
 
+            <BookLookupField
+                v-if="!isEditing"
+                :lookup-url="props.lookupUrl"
+                @select="applyLookup"
+            />
+
             <CoverUploadField
                 :model-value="form.cover"
                 :existing-url="existingCover"
@@ -194,6 +240,7 @@ function submit(): void {
                 @remove="onCoverRemove"
             />
             <InputError :message="form.errors.cover" />
+            <InputError :message="form.errors.cover_url" />
             <InputError :message="form.errors.remove_cover" />
 
             <div class="grid gap-2">

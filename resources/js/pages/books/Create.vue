@@ -19,6 +19,7 @@ defineProps<{
     statuses: StatusOption[];
     languages: LanguageOption[];
     coverMaxKilobytes: number;
+    lookupUrl: string;
 }>();
 </script>
 
@@ -53,6 +54,7 @@ defineProps<{
             :statuses="statuses"
             :languages="languages"
             :cover-max-kilobytes="coverMaxKilobytes"
+            :lookup-url="lookupUrl"
         />
     </div>
 </template>

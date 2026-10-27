@@ -11,6 +11,7 @@ const props = defineProps<{
     statuses: StatusOption[];
     languages: LanguageOption[];
     coverMaxKilobytes: number;
+    lookupUrl: string;
     shelfUrl: string | null;
 }>();
 
@@ -75,6 +76,7 @@ defineOptions({
             :statuses="props.statuses"
             :languages="props.languages"
             :cover-max-kilobytes="props.coverMaxKilobytes"
+            :lookup-url="props.lookupUrl"
         />
     </div>
 </template>

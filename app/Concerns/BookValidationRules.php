@@ -29,6 +29,10 @@ trait BookValidationRules
                 ]);
             }
         }
+
+        if (is_string($this->input('cover_url')) && trim((string) $this->input('cover_url')) === '') {
+            $this->merge(['cover_url' => null]);
+        }
     }
 
     /**
@@ -54,6 +58,7 @@ trait BookValidationRules
             'synopsis' => ['nullable', 'string', 'max:'.$limits['synopsis'], new NoProfanity],
             'review' => ['nullable', 'string', 'max:'.$limits['review'], new NoProfanity],
             'review_url' => ['nullable', 'string', 'max:2048', 'url'],
+            'cover_url' => ['nullable', 'string', 'max:2048', 'url'],
             'cover_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'total_pages' => ['nullable', 'integer', 'min:1', 'max:20000'],
             'started_at' => ['nullable', 'date', 'before_or_equal:today'],
@@ -106,6 +111,8 @@ trait BookValidationRules
             'cover_color.regex' => 'Warna sampul harus kode hex seperti #b4763a.',
             'review_url.url' => 'Link review harus berupa tautan yang valid, misalnya https://instagram.com/p/....',
             'review_url.max' => 'Link review terlalu panjang (maksimal 2048 karakter).',
+            'cover_url.url' => 'Tautan sampul tidak valid.',
+            'cover_url.max' => 'Tautan sampul terlalu panjang (maksimal 2048 karakter).',
             'total_pages.min' => 'Jumlah halaman minimal 1.',
             'started_at.before_or_equal' => 'Tanggal mulai tidak boleh melewati hari ini.',
             'finished_at.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',
