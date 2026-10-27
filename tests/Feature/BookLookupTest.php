@@ -138,6 +138,42 @@ it('membuang hasil google yang judul maupun penulisnya tak cocok', function () {
         ->and($response['data'][0]['title'])->toBe('Entrok');
 });
 
+it('mentoleransi typo ringan seperti berkisar vs bekisar', function () {
+    $user = User::factory()->create();
+
+    Http::fake([
+        'googleapis.com/*' => Http::response([
+            'items' => [
+                [
+                    'id' => 'typo1',
+                    'volumeInfo' => [
+                        'title' => 'Bekisar merah',
+                        'authors' => ['Ahmad Tohari'],
+                        'language' => 'id',
+                    ],
+                ],
+                [
+                    'id' => 'junk2',
+                    'volumeInfo' => [
+                        'title' => 'XPLORE Ulangan Harian SMP Kelas 8',
+                        'authors' => ['Tim Foton Edukasi'],
+                        'language' => 'id',
+                    ],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    $response = $this->actingAs($user)
+        ->getJson(route('books.lookup', ['q' => 'berkisar merah']))
+        ->assertOk()
+        ->json();
+
+    expect($response['provider'])->toBe('google')
+        ->and($response['data'])->toHaveCount(1)
+        ->and($response['data'][0]['title'])->toBe('Bekisar merah');
+});
+
 it('menolak query lookup yang terlalu pendek', function () {
     $user = User::factory()->create();
 

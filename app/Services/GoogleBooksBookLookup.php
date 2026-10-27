@@ -89,16 +89,30 @@ class GoogleBooksBookLookup
      */
     private function matchesQuery(array $item, string $query): bool
     {
-        $title = mb_strtolower((string) ($item['title'] ?? ''));
-        $author = mb_strtolower((string) ($item['author'] ?? ''));
+        $queryWords = $this->queryWords($query);
 
-        return mb_strpos($title, $query) !== false
-            || ($author !== '' && mb_strpos($author, $query) !== false);
+        // Tanpa kata signifikan (mis. query "a b c"): fallback substring penuh.
+        if ($queryWords === []) {
+            $title = mb_strtolower((string) ($item['title'] ?? ''));
+
+            return mb_strpos($title, $query) !== false;
+        }
+
+        $haystack = $this->haystackWords($item);
+
+        // Tiap kata query wajib cocok persis atau typo ringan (bekisar/berkisar).
+        foreach ($queryWords as $word) {
+            if (! $this->wordMatches($word, $haystack)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Skor relevansi: judul exact > judul diawali query > judul
-     * mengandung > penulis mengandung.
+     * Skor relevansi: judul exact > diawali query > kata cocok persis
+     * > typo ringan > cocok penulis.
      *
      * @param  array<string, mixed>  $item
      */
@@ -108,22 +122,80 @@ class GoogleBooksBookLookup
         $author = mb_strtolower((string) ($item['author'] ?? ''));
 
         if ($title === $query) {
-            return 4;
+            return 100;
         }
+
+        $score = 0;
 
         if (mb_strpos($title, $query) === 0) {
-            return 3;
+            $score += 10;
         }
 
-        if (mb_strpos($title, $query) !== false) {
-            return 2;
+        $haystack = $this->haystackWords($item);
+
+        foreach ($this->queryWords($query) as $word) {
+            if (mb_strpos($title, $word) !== false || mb_strpos($author, $word) !== false) {
+                $score += 2;
+            } elseif ($this->wordMatches($word, $haystack)) {
+                $score += 1;
+            }
         }
 
-        if ($author !== '' && mb_strpos($author, $query) !== false) {
-            return 1;
+        return $score;
+    }
+
+    /**
+     * Kata query yang signifikan (pendek seperti "di"/"on" diabaikan).
+     *
+     * @return list<string>
+     */
+    private function queryWords(string $query): array
+    {
+        $words = preg_split('/\s+/', mb_strtolower($query)) ?: [];
+
+        return array_values(array_filter(
+            $words,
+            fn (string $w): bool => mb_strlen($w) >= 3,
+        ));
+    }
+
+    /**
+     * Kata-kata judul + penulis sebagai bahan pencocokan.
+     *
+     * @param  array<string, mixed>  $item
+     * @return list<string>
+     */
+    private function haystackWords(array $item): array
+    {
+        $text = mb_strtolower(trim((string) ($item['title'] ?? '').' '.(string) ($item['author'] ?? '')));
+        $words = preg_split('/[\s\-:;,.!?()"\']+/', $text) ?: [];
+
+        return array_values(array_filter($words, fn (string $w): bool => $w !== ''));
+    }
+
+    private function wordMatches(string $word, array $haystack): bool
+    {
+        foreach ($haystack as $candidate) {
+            if (mb_strpos($candidate, $word) !== false || mb_strpos($word, $candidate) !== false) {
+                return true;
+            }
+
+            if ($this->levenshteinAscii($word, $candidate) <= ($this->wordLength($word) <= 4 ? 1 : 2)) {
+                return true;
+            }
         }
 
-        return 0;
+        return false;
+    }
+
+    private function wordLength(string $word): int
+    {
+        return mb_strlen($word);
+    }
+
+    private function levenshteinAscii(string $a, string $b): int
+    {
+        return levenshtein(mb_convert_encoding($a, 'ASCII', 'UTF-8'), mb_convert_encoding($b, 'ASCII', 'UTF-8'));
     }
 
     /**
