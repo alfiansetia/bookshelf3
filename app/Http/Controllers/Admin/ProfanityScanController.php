@@ -137,9 +137,6 @@ class ProfanityScanController extends Controller
     private function bookFields(Book $book): array
     {
         return [
-            'title' => $book->title,
-            'author' => $book->author,
-            'publisher' => $book->publisher,
             'synopsis' => $book->synopsis,
             'review' => $book->review,
         ];

@@ -48,9 +48,9 @@ trait BookValidationRules
         $languages = array_keys(config('bookshelf.languages'));
 
         return [
-            'title' => ['required', 'string', 'max:255', new NoProfanity],
-            'author' => ['required', 'string', 'max:255', new NoProfanity],
-            'publisher' => ['nullable', 'string', 'max:255', new NoProfanity],
+            'title' => ['required', 'string', 'max:255'],
+            'author' => ['required', 'string', 'max:255'],
+            'publisher' => ['nullable', 'string', 'max:255'],
             'published_year' => ['nullable', 'integer', 'min:1000', 'max:'.(date('Y') + 1)],
             'language' => ['required', 'string', Rule::in($languages)],
             'status' => ['required', Rule::enum(BookStatus::class)],
